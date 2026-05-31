@@ -4,11 +4,11 @@
   <img src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=1200&q=80" alt="Pharma-Sync Header" width="100%" style="border-radius: 12px; margin-bottom: 20px; object-fit: cover; height: 320px;" />
   
   [![React](https://img.shields.io/badge/Frontend-React%20v18.3-61DAFB?logo=react&logoColor=black&style=for-the-badge)](https://react.dev/)
-  [![Vite](https://img.shields.io/badge/Bundler-Vite%20v5-646CFF?logo=vite&style=for-the-badge)](https://vite.dev/)
-  [![BaaS](https://img.shields.io/badge/BaaS-Supabase%20%28PostgreSQL%29-3ECF8E?logo=supabase&style=for-the-badge)](https://supabase.com)
-  [![Render Deployment](https://img.shields.io/badge/Deployment-Render.com-00E5FF?logo=render&style=for-the-badge)](https://render.com)
-  [![Styling](https://img.shields.io/badge/Styling-CSS3%20Vanilla%20%26%20Glassmorphism-FF4081?style=for-the-badge)](https://developer.mozilla.org/css)
-  [![License](https://img.shields.io/badge/License-MIT-4CAF50?style=for-the-badge)](LICENSE)
+  [![Vite](https://img.shields.io/badge/Compilador-Vite%20v5-646CFF?logo=vite&style=for-the-badge)](https://vite.dev/)
+  [![BaaS](https://img.shields.io/badge/Backend-Supabase%20%28PostgreSQL%29-3ECF8E?logo=supabase&style=for-the-badge)](https://supabase.com)
+  [![Render Deployment](https://img.shields.io/badge/Despliegue-Render.com-00E5FF?logo=render&style=for-the-badge)](https://render.com)
+  [![Styling](https://img.shields.io/badge/Estilos-CSS3%20Vanilla%20y%20Glassmorphism-FF4081?style=for-the-badge)](https://developer.mozilla.org/css)
+  [![License](https://img.shields.io/badge/Licencia-MIT-4CAF50?style=for-the-badge)](LICENSE)
 </div>
 
 ---
@@ -24,30 +24,32 @@ La suite Pharma-Sync está construida bajo los más altos estándares de desarro
 
 ```mermaid
 graph TD
-    subgraph ClientSide ["CLIENT SIDE - Desplegado en Render Static Site"]
+    subgraph ClientSide ["LADO DEL CLIENTE - Desplegado en Render como Sitio Estático"]
         A["React 18 UI / Layout.jsx"]
-        B["AppContext.jsx State Manager"]
-        C["Offline Transaction Queue"]
-        D{"Gateway de Conectividad"}
-        E["LocalStorage DB"]
+        B["AppContext.jsx - Gestor de Estado"]
+        C["Cola de Transacciones Offline"]
+        D{"Puerta de Enlace de Conectividad"}
+        E["Base de Datos LocalStorage"]
     end
 
-    subgraph CloudBackend ["CLOUD BACKEND BaaS"]
-        F["Supabase Cloud Instance"]
+    subgraph CloudBackend ["BACKEND EN LA NUBE - BaaS"]
+        F["Instancia Cloud de Supabase"]
         G["Tabla public.pharma_sync"]
     end
 
-    %% Flow interactions
-    A -->|Consume State / Hooks| B
-    B <-->|Carga / Guardado Inicial| E
-    B -->|Transaccion Fallida Offline| C
-    B -->|Interroga Conexion| D
+    %% Interacciones del flujo
+    A -->|Consume Estado y Hooks| B
+    B -->|Carga / Guardado Inicial| E
+    E -->|Carga / Guardado Inicial| B
+    B -->|Transacción Fallida Offline| C
+    B -->|Consulta Conexión| D
     D -->|ONLINE| F
     D -->|OFFLINE| C
-    C -->|Sync Manual| D
-    F <-->|REST API Requests| G
+    C -->|Sincronización Manual| D
+    F -->|Peticiones de API REST| G
+    G -->|Respuestas JSON| F
 
-    %% Assigning Classes to Nodes for Visual Aesthetics
+    %% Clases para estética visual del diagrama
     classDef client fill:#1E293B,stroke:#38BDF8,stroke-width:2px,color:#F1F5F9;
     classDef context fill:#0F172A,stroke:#6366F1,stroke-width:2px,color:#F1F5F9;
     classDef localDB fill:#311042,stroke:#EC4899,stroke-width:2px,color:#F1F5F9;
@@ -438,12 +440,26 @@ El ERP se encuentra completamente operativo y desplegado de manera continua en l
 
 ---
 
-## 👥 Autores y Contribución
+## 👥 Integrantes y Contribución
 
-¡Las contribuciones mantienen el proyecto con calidad de software empresarial! Siga los estándares de Git Flow y Conventional Commits:
+El desarrollo de esta suite empresarial es impulsado por un equipo multidisciplinario de ingeniería:
 
-*   **Gengar-pro** — *Lead Architect & Frontend Developer* — [GitHub Perfil](https://github.com/Gengar-pro)
-*   **Antigravity AI** — *Pair Programmer & Senior Technical Writer*
+### 🎓 Equipo de Desarrollo (Integrantes)
+
+| # | Nombre Completo | Carrera / Especialidad | Registro / CU | Rol en el Proyecto / Enlace |
+| :-: | :--- | :--- | :-: | :--- |
+| 1 | **Quispe Sullca Luis Fernando** | Ing. en Ciencias de la Computación | `111-558` | [**Desarrollador Principal (Gengar-pro)**](https://github.com/Gengar-pro) 🚀 |
+| 2 | **Calatayud Mamani Alex Josué** | Ing. de Sistemas | `35-6193` | Colaborador |
+| 3 | **Chambi Condori Janet** | Ing. de Sistemas | `35-6154` | Colaboradora |
+| 4 | **Jurado Mamani Melany Shelen** | Ing. de Sistemas | `35-6181` | Colaboradora |
+| 5 | **Macuchapi Fernandez Daner** | Ing. de Sistemas | `35-6142` | Colaborador |
+| 6 | **Mamani Isla Limbert** | Ing. de Sistemas | `35-6151` | Colaborador |
+| 7 | **Mendoza Sandoval Kevin Yhamil** | Ing. de Sistemas | `35-6197` | Colaborador |
+| 8 | **Quispe Anagua Jhon Christian** | Ing. de Sistemas | `35-6192` | Colaborador |
+| 9 | **Ramirez Luna Elizabeth** | Ing. de Sistemas | `35-6136` | Colaboradora |
+| 10 | **Sandoval Maribel** | Ing. de Sistemas | `35-6200` | Colaboradora |
+
+*   **Antigravity AI** — *Soporte y Modelado de Inteligencia Artificial (Pair Programmer & Senior Writer)*
 
 ---
 
