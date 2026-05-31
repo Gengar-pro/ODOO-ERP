@@ -321,18 +321,17 @@ export default function ContabilidadModule() {
       </div>
 
       {/* VISUALIZADOR INTERACTIVO DE SECUENCIA CONTABLE Y FLUJOS */}
-      <div className="card" style={{ marginTop: '24px', overflow: 'hidden', position: 'relative', border: '1px solid var(--border)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          <div>
-            <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Bot size={20} style={{ color: 'var(--primary)' }} />
-              <span>Visualizador de Secuencia Contable y Flujos Relacionales</span>
-            </h3>
-            <p style={{ fontSize: '11px', color: 'var(--text-muted)', margin: '4px 0 0' }}>
-              Simula e interactúa con la secuencia lógica de transacciones en tiempo real. Usa los controles flotantes para hacer zoom, desplazar (pan) y simular el recorrido paso a paso.
-            </p>
-          </div>
-          <span className="status-badge badge-success" style={{ fontSize: '10px' }}>Simulador Activo</span>
+      <div className="card" style={{ marginTop: '24px', overflow: 'hidden', position: 'relative', border: '1px solid var(--border)', padding: '24px' }}>
+        <div style={{ marginBottom: '20px', borderBottom: '1px solid #1E293B', paddingBottom: '16px' }}>
+          <h2 style={{ margin: '0 0 12px 0', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '20px', fontWeight: '800', color: '#FFFFFF' }}>
+            <span>🔄 Secuencia de Flujos Relacionales Críticos</span>
+          </h2>
+          <p style={{ fontSize: '13px', color: '#94A3B8', margin: '0 0 16px 0', lineHeight: '1.6' }}>
+            La principal ventaja competitiva de Pharma-Sync es la <b>automatización relacional entre módulos</b>, simulada dinámicamente en el cliente:
+          </p>
+          <h4 style={{ margin: '8px 0 0 0', fontSize: '14px', fontWeight: '700', color: '#00E5FF', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span>Secuencia: POS ──► Inventario ──► Almacén (Compras) ──► Contabilidad</span>
+          </h4>
         </div>
 
         {/* CONTENEDOR PRINCIPAL DEL DIAGRAMA */}
