@@ -101,53 +101,272 @@ Generar RFQ Automático
 
 ## 🚀 Características Principales (Core Modules)
 
-El sistema cuenta con **12 módulos funcionales autocontenidos** altamente integrados en el cliente y la base de datos distribuida:
+El sistema cuenta con **12 módulos funcionales autocontenidos** altamente integrados en el cliente y la base de datos distribuida. A continuación se desglosa cada módulo junto a su **Diagrama de Flujo de Secuencia Relacional** correspondiente:
 
 ### 1. 👥 CRM & Fidelidad de Pacientes
 *   **Funcionalidades**: Fichas clínicas detalladas, historial de tratamientos médicos crónicos, administración de puntos de recompensa por compras.
 *   **Visualización**: Tablero Kanban interactivo para el seguimiento de leads comerciales y segmentación inteligente de pacientes hipertenso/diabéticos.
 
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Paciente as Paciente
+    participant POS as Punto de Venta (POS)
+    participant Ctx as AppContext Engine
+    participant DB as LocalStorage / Supabase
+
+    Paciente->>POS: Realiza compra e indica su ID de Paciente
+    POS->>Ctx: registrarPuntosFidelidad(pacienteId, montoCompra)
+    Ctx->>Ctx: Calcular puntos ganados (1 punto por cada $100)
+    Ctx->>DB: Actualizar récord de cliente (puntos acumulados)
+    DB-->>Ctx: Confirmación de actualización
+    Ctx-->>POS: Retorna puntos actualizados del paciente
+    POS-->>Paciente: Entrega ticket con puntos leales actualizados
+```
+
 ### 2. 📈 Ventas e Ingresos
 *   **Funcionalidades**: Emisión y control de cotizaciones corporativas, aprobación de contratos de distribución mayorista y visualización analítica de ganancias mensuales.
-*   **Integración**: Interconectado directamente con el módulo contable para provisionar ingresos automáticamente.
+*   **Integración**: Interconectado directamente con el módulo contable para registrar ingresos automáticamente.
 
-### 3. 💼 Contabilidad y Conciliación bancaria
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Ejecutivo as Ejecutivo Comercial
+    participant Ventas as Módulo de Ventas
+    participant Inv as Módulo Inventario
+    participant Ctx as AppContext Engine
+    participant Contas as Módulo Contabilidad
+
+    Ejecutivo->>Ventas: Crea y aprueba cotización mayorista
+    Ventas->>Ctx: procesarOrdenVenta(cliente, items, total)
+    Ctx->>Inv: Verificar disponibilidad de lotes médicos
+    Inv-->>Ctx: Stock suficiente verificado
+    Ctx->>Contas: Generar factura e ingresar cuenta por cobrar (CxC)
+    Ctx->>Inv: Reducir unidades físicas del almacén central
+    Ctx-->>Ventas: Contrato comercial aprobado e ingreso registrado
+```
+
+### 3. 💼 Contabilidad y Conciliación Bancaria
 *   **Funcionalidades**: Libro mayor de transacciones, visualización del balance general activo, impuestos autocalculados (simulación XML de facturas electrónicas).
 *   **Tecnología Clave**: Conciliación automática de facturas mediante un algoritmo de coincidencia que simula auditoría por Inteligencia Artificial.
 
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Contador as Contador General
+    participant Contas as Módulo Contabilidad
+    participant IA as Motor Conciliación IA
+    participant Ctx as AppContext Engine
+    participant DB as Base de Datos
+
+    Contador->>Contas: Carga extracto bancario mensual (.csv)
+    Contas->>IA: Iniciar conciliación automática
+    loop Para cada transacción del extracto
+        IA->>Ctx: Buscar coincidencia de monto e ID en Facturas
+        Ctx-->>IA: Retorna posible factura candidata
+        IA->>IA: Validar match mediante algoritmo de coincidencia
+    end
+    IA->>Ctx: conciliarFacturaBancaria(facturaId, txId)
+    Ctx->>DB: Actualizar estado de factura a 'Conciliado'
+    Ctx-->>Contas: Reporte de balance fiscal autogenerado
+```
+
 ### 4. 📦 Inventario y Almacén Físico
 *   **Funcionalidades**: Control estricto de stocks, semáforos visuales de proximidad de vencimiento y ajuste rápido de unidades (`+10`, `+50`, `+100` u).
-*   **Seguridad**: Confirmaciones explícitas de eliminación permanente para salvaguardar la consistencia operativa.
+*   **Seguridad**: Confirmaciones explícitas de eliminación permanente para salvaguardar la consistencia de inventario.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Operador as Encargado de Almacén
+    participant Inv as Módulo Inventario
+    participant Ctx as AppContext Engine
+    participant Notif as Centro de Alertas
+    participant Compras as Compras (Auto-RFQ)
+
+    Operador->>Inv: Ejecuta ajuste rápido de stock (+50 unidades)
+    Inv->>Ctx: ajustarStockMedicamento(id, cantidad)
+    Ctx->>Ctx: Compara stock actual con stock mínimo
+    alt Stock < Stock Mínimo Crítico
+        Ctx->>Notif: addNotification('stock_bajo', mensaje)
+        Ctx->>Compras: autoGenerarBorradorRFQ(medicamentoId)
+    end
+    Ctx-->>Inv: Renderiza semáforo de inventario y stock actualizado
+```
 
 ### 5. 🛒 Compras y Auto-RFQ
 *   **Funcionalidades**: Registro de proveedores farmacéuticos nacionales (BAGO, INTI), historial de recepciones y automatización de reabastecimiento.
 *   **Flujo Inteligente**: Cuando el inventario de un fármaco cae por debajo de su límite crítico, el sistema genera de forma autónoma una Orden de Compra (RFQ) en estado "Borrador".
 
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Inv as Módulo Inventario
+    participant Ctx as AppContext Engine
+    participant Compras as Módulo de Compras
+    actor Comprador as Encargado de Adquisiciones
+
+    Inv->>Ctx: Alerta: Medicamento X bajo límite crítico
+    Ctx->>Compras: autoGenerarBorradorRFQ(medicamentoId, provDefecto)
+    Compras->>Compras: Inserta Orden de Compra en estado 'Borrador'
+    Comprador->>Compras: Revisa lista de adquisiciones pendientes
+    Comprador->>Compras: Aprueba Orden y despacha a Proveedor
+    Compras-->>Comprador: Albarán de recepción generado en inventario
+```
+
 ### 6. 🧪 Manufactura (MRP)
 *   **Funcionalidades**: Registro de fórmulas magistrales farmacéuticas y mezclador de reactivos/ingredientes activos.
 *   **Impacto Contable**: Al fabricar un producto final, el sistema resta automáticamente el stock de materias primas e inyecta los costos de fabricación simulados en la contabilidad general.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Quimico as Químico Farmacéutico
+    participant MRP as Módulo Manufactura
+    participant Ctx as AppContext Engine
+    participant Inv as Inventario (Materias Primas)
+    participant Contas as Módulo Contabilidad
+
+    Quimico->>MRP: Selecciona fórmula magistral (Ej: Ibuprofeno Jarabe)
+    MRP->>Ctx: fabricarLoteMagistral(formulaId, cantidadLotes)
+    Ctx->>Inv: Validar y restar reactivos/principios activos
+    Inv-->>Ctx: Reactivos consumidos exitosamente
+    Ctx->>Inv: Dar de alta el lote del medicamento terminado
+    Ctx->>Contas: Cargar costos de fabricación al inventario contable
+    Ctx-->>MRP: Lote magistral aprobado y liberado para la venta
+```
 
 ### 7. 👥 Recursos Humanos (RRHH)
 *   **Funcionalidades**: Administración de turnos y vacaciones del personal médico y administrativo.
 *   **Herramienta**: Checador digital biométrico (Check-In/Out) interactivo que captura el inicio/fin de jornada y calcula horas laboradas.
 
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Empleado as Empleado Administrativo
+    participant Bio as Reloj Biométrico Digital
+    participant RRHH as Módulo RRHH
+    participant Ctx as AppContext Engine
+    participant DB as Base de Datos
+
+    Empleado->>Bio: Presiona Check-In al iniciar jornada
+    Bio->>Ctx: registrarAsistenciaUsuario(empleadoId, timestamp)
+    Ctx->>DB: Guardar log de ingreso en registro diario
+    DB-->>Ctx: Confirmación de persistencia
+    Ctx-->>RRHH: Actualizar hoja de horas laboradas
+    RRHH-->>Empleado: Muestra saludo e ingreso exitoso
+```
+
 ### 8. 🖥️ Punto de Venta (POS)
 *   **Funcionalidades**: Interfaz táctil de caja registradora ultrarrápida, barra de búsqueda reactiva por categorías de medicamentos y visor de recibo electrónico imprimible.
 *   **Uso**: Optimizado con simulación de lector de códigos de barras.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Cajero as Auxiliar de Caja (POS)
+    participant POS as Módulo Punto de Venta
+    participant Ctx as AppContext Engine
+    participant Contas as Contabilidad (Facturas)
+    participant Cliente as Paciente / Cliente
+
+    Cajero->>POS: Escanea código de barras del medicamento
+    POS->>Ctx: Consultar stock y precio unitario
+    Ctx-->>POS: Retorna información del fármaco
+    POS->>POS: Añade ítem a carrito de cobro
+    Cajero->>POS: Selecciona método de pago y cierra compra
+    POS->>Ctx: registrarVentaPOS(carrito, clienteId, total)
+    Ctx->>Contas: Emitir comprobante contable fiscal XML
+    Ctx-->>POS: Genera recibo térmico imprimible
+    POS-->>Cliente: Entrega medicamentos y ticket fiscal
+```
 
 ### 9. 🌐 Sitio Web & E-Commerce
 *   **Funcionalidades**: Portal comercial público en línea que expone el catálogo sincronizado directamente con la disponibilidad física del almacén central.
 *   **UX**: Pasarela de pago virtual integrada y chat médico de soporte técnico interactivo.
 
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Cliente as Paciente Online
+    participant Web as Sitio Web / E-Commerce
+    participant Pago as Pasarela de Pago Virtual
+    participant Ctx as AppContext Engine
+    participant Inv as Inventario Central
+
+    Cliente->>Web: Busca medicamentos en catálogo en línea
+    Web->>Ctx: Consulta stock disponible en tiempo real
+    Ctx-->>Web: Retorna unidades aptas para venta online
+    Cliente->>Web: Añade al carrito y presiona 'Pagar'
+    Web->>Pago: Solicita autorización de tarjeta de crédito
+    Pago-->>Web: Transacción aprobada exitosamente
+    Web->>Ctx: confirmarVentaEcommerce(carrito, total)
+    Ctx->>Inv: Restar unidades físicas del almacén central
+    Ctx-->>Web: Confirmación de despacho para envío a domicilio
+```
+
 ### 10. 📣 Marketing y Fidelización
 *   **Funcionalidades**: Gestor de campañas de difusión masiva (SMS y correo electrónico).
 *   **Métricas**: Analíticas simuladas de clics, tasa de apertura y éxito de conversión en pacientes suscritos.
 
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Especialista as Especialista de Marketing
+    participant Mkt as Módulo de Marketing
+    participant Ctx as AppContext Engine
+    participant CRM as CRM (Pacientes)
+    participant Notif as Canal de Envío (SMS/Email)
+
+    Especialista->>Mkt: Configura campaña "Prevención Hipertensión 2026"
+    Mkt->>Ctx: obtenerPacientesPorCriterio(tratamiento = Losartán)
+    Ctx->>CRM: Buscar registros clínicos coincidentes
+    CRM-->>Ctx: Lista de pacientes crónicos hipertensos
+    Ctx->>Notif: Enviar cupones de descuento exclusivos vía SMS
+    Notif-->>Mkt: Tasa de apertura y conversiones analizadas
+    Mkt-->>Especialista: Gráfico de retorno de inversión de la campaña
+```
+
 ### 11. 📅 Proyectos y Expansiones
 *   **Funcionalidades**: Planificación de campañas de salud pública y apertura de nuevas sucursales mediante listas de tareas ágiles con indicador de porcentaje de completado.
 
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Coordinador as Coordinador de Expansión
+    participant Proy as Módulo Proyectos (Gantt)
+    participant Ctx as AppContext Engine
+    participant Colab as Canal de Colaboración
+    participant DB as Base de Datos
+
+    Coordinador->>Proy: Añade tarea al Diagrama de Gantt
+    Proy->>Ctx: crearTareaProyecto(nombre, semana, progresoInicial)
+    Ctx->>DB: Persistir tarea en tabla de proyectos
+    DB-->>Ctx: Confirmación de registro exitoso
+    Coordinador->>Colab: Envía actualización en chat de coordinación
+    Colab->>Ctx: registrarMensajeColaboracion(autor, texto)
+    Ctx-->>Proy: Renderiza Gantt y chat de equipo actualizados
+```
+
 ### 12. 💬 Mesa de Ayuda (Helpdesk)
 *   **Funcionalidades**: Sistema de tickets para soporte técnico de farmacia y tele-consultas de salud administrado bajo niveles de acuerdo de servicio (SLA).
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Paciente as Paciente / Operario
+    participant Help as Módulo Mesa de Ayuda
+    participant Ctx as AppContext Engine
+    participant RRHH as Recursos Humanos (Especialista)
+    participant Notif as Centro de Alertas
+
+    Paciente->>Help: Abre ticket por falla técnica o consulta médica
+    Help->>Ctx: registrarTicketSoporte(asunto, urgencia)
+    Ctx->>Ctx: Calcular nivel de acuerdo de servicio (SLA)
+    Ctx->>RRHH: Asignar al especialista de guardia disponible
+    Ctx->>Notif: addNotification('ticket_asignado', mensaje)
+    Ctx-->>Help: Ticket creado con ID único en estado 'Abierto'
+```
 
 ---
 
