@@ -179,7 +179,6 @@ export default function Layout() {
             </div>
 
             <div className="header-right">
-                  onClick={() => setActiveView('desktop')}
               {/* Day/Night native Switch */}
               <button onClick={toggleTheme} className="icon-btn" title="Alternar Modo Día/Noche">
                 {activeTheme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
