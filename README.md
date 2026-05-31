@@ -14,107 +14,266 @@
 ---
 
 ### 🌟 Resumen Ejecutivo
-**Pharma-Sync ERP** es un ecosistema digital avanzado e interactivo de nivel empresarial (inspirado en la arquitectura modular de **Odoo**) diseñado específicamente para la administración integral de cadenas de farmacias, laboratorios y atención clínica. Su núcleo de alto rendimiento fusiona una interfaz premium responsiva (con esquemas adaptativos de color y simulación táctil móvil) junto con un motor híbrido de doble persistencia en tiempo real (LocalStorage + Supabase Cloud) y resiliencia offline ante fallos de red.
+**Pharma-Sync ERP** es un ecosistema digital avanzado e interactivo de nivel empresarial (inspirado en la suite modular de **Odoo**) diseñado específicamente para la administración integral de cadenas de farmacias, laboratorios y atención clínica. Su arquitectura modular desacoplada opera bajo un esquema de **Doble Persistencia Reactiva Híbrida** (LocalStorage + Supabase Cloud), garantizando total resiliencia operativa mediante colas de transacciones offline y una interfaz premium neumórfica/glassmórfica adaptativa de última generación.
 
 ---
 
-## 🚀 Características Principales (Key Features)
+## 🏛️ Arquitectura del Sistema y Tech Stack
 
-| Característica | Detalle Funcional | Impacto Empresarial |
-| :--- | :--- | :--- |
-| **🗄️ Doble Persistencia Híbrida** | Sincronización bidireccional inmediata de datasets locales (`LocalStorage`) con almacenamiento estructurado en la nube (`Supabase Cloud REST API`). | Cero pérdida de información operativa al cambiar de pestaña, cerrar sesión o recargar. |
-| **📶 Resiliencia y Modo Offline** | Cola interna de transacciones sin conexión (`OfflineQueue`). Captura de ventas y reajustes locales que se procesan al detectar conexión. | Continuidad del negocio garantizada aun en caídas de red o zonas rurales. |
-| **💳 POS Integrado con Triggers** | Terminal Punto de Venta optimizado con lector simulado de códigos de barras, carrito interactivo y emisión de facturas XML autorizadas. | Venta al público fluida en milisegundos con cálculo automático de impuestos. |
-| **📦 MRP y Reabastecimiento Automático** | Generación autónoma de borradores de RFQ a proveedores líderes (BAGO, INTI) cuando el stock cae por debajo del mínimo crítico. | Control estricto de existencias, semáforos de vencimiento por lotes y reabastecimiento rápido. |
-| **🔒 Gestión y Control de Roles (RBAC)** | Matriz de permisos integrada con 6 perfiles corporativos preestablecidos (Administrador, Regente, Contador, RRHH, Almacén, Marketing). | Seguridad perimetral del sistema y auditoría de asistencia con check-in/out biométrico. |
-| **💬 Canales Interactivos de Cliente** | Portal e-commerce completo con carrito de compras integrado, pasarela de pago virtual y chat de consulta farmacéutica directa. | Canal digital robusto sincronizado al instante con el inventario físico central. |
-
----
-
-## 🛠️ Arquitectura y Stack Tecnológico
-
-El ecosistema opera bajo un patrón de **Gestión de Estado Centralizado y Módulos Desacoplados**. La lógica relacional se encuentra encapsulada en el contexto global, permitiendo a los módulos individuales actuar de forma autónoma pero altamente sincronizada.
-
-*   **Frontend / Cliente**: React v18.3, JavaScript ES6+, empaquetado ultra-veloz en milisegundos con **Vite v5**.
-*   **Diseño y Estilos**: CSS3 Vanilla puro mediante un sistema premium basado en tokens de variables HSL, Glassmorphism, neumorfismo y esquemas adaptativos de color mediante selectores `data-theme` (Día/Noche).
-*   **Backend as a Service (BaaS)**: **Supabase** (Base de datos PostgreSQL en la nube, autenticación y almacenamiento REST API para upserts en la tabla centralizada `pharma_sync`).
-*   **Hosting y Pipeline de CD**: Desplegado de forma continua en **Render.com** (Static Site optimizado con despliegue de PRs automático).
-
-### 📊 Diagrama de Flujo e Integración de Datos
-El siguiente diagrama detalla cómo el cliente interactúa con la base de datos distribuida local e integra las peticiones HTTP a los microservicios de Supabase:
+La suite Pharma-Sync está construida bajo los más altos estándares de desarrollo frontend moderno y servicios distribuidos:
 
 ```mermaid
 graph TD
-    %% Styling
-    classDef client fill:#1A2238,stroke:#61DAFB,stroke-width:2px,color:#FFFFFF;
-    classDef context fill:#0D1117,stroke:#646CFF,stroke-width:2px,color:#FFFFFF;
-    classDef localDB fill:#2E3F5F,stroke:#FF4081,stroke-width:2px,color:#FFFFFF;
-    classDef cloudDB fill:#1C2E24,stroke:#3ECF8E,stroke-width:2px,color:#FFFFFF;
-
-    subgraph ClientSide ["CLIENT SIDE (Navegador) - Desplegado en Render.com"]
-        A["React 18 UI / Layout.jsx"]:::client
-        B["AppContext.jsx (React Context - Engine Central)"]:::context
-        C["Offline Transaction Queue (Caché local de transacciones)"]:::context
-        D{"Gateway de Conectividad"}:::context
-        E[("LocalStorage Database")]:::localDB
+    subgraph ClientSide ["CLIENT SIDE - Desplegado en Render Static Site"]
+        A["React 18 UI / Layout.jsx"]
+        B["AppContext.jsx State Manager"]
+        C["Offline Transaction Queue"]
+        D{"Gateway de Conectividad"}
+        E["LocalStorage DB"]
     end
 
-    subgraph CloudBackend ["CLOUD BACKEND (BaaS)"]
-        F[("Supabase Cloud Instance")]:::cloudDB
-        G["Tabla pharma_sync (PostgreSQL)"]:::cloudDB
+    subgraph CloudBackend ["CLOUD BACKEND BaaS"]
+        F["Supabase Cloud Instance"]
+        G["Tabla public.pharma_sync"]
     end
 
     %% Flow interactions
-    A <-->|Context Hooks & Eventos| B
-    B <-->|Carga/Guardado de Seguridad| E
-    B -->|Transacción Fallida (Offline)| C
-    B <-->|Doble persistencia activa| D
-    D -->|ONLINE - Cloud Upsert| F
-    D -->|OFFLINE - Conservar local| C
-    C -->|Acción manual 'Sincronizar Datos'| D
-    F <-->|REST API Fetch / POST / GET| G
+    A -->|Consume State / Hooks| B
+    B <-->|Carga / Guardado Inicial| E
+    B -->|Transaccion Fallida Offline| C
+    B -->|Interroga Conexion| D
+    D -->|ONLINE| F
+    D -->|OFFLINE| C
+    C -->|Sync Manual| D
+    F <-->|REST API Requests| G
+
+    %% Assigning Classes to Nodes for Visual Aesthetics
+    classDef client fill:#1E293B,stroke:#38BDF8,stroke-width:2px,color:#F1F5F9;
+    classDef context fill:#0F172A,stroke:#6366F1,stroke-width:2px,color:#F1F5F9;
+    classDef localDB fill:#311042,stroke:#EC4899,stroke-width:2px,color:#F1F5F9;
+    classDef cloudDB fill:#064E3B,stroke:#10B981,stroke-width:2px,color:#F1F5F9;
+
+    class A client;
+    class B context;
+    class C context;
+    class D context;
+    class E localDB;
+    class F cloudDB;
+    class G cloudDB;
+```
+
+### 💻 Desglose del Stack Tecnológico
+*   **Frontend Core**: **React 18.3.1** (Arquitectura funcional basada en Context Hooks y renderizado concurrente).
+*   **Gestor de Empaquetado**: **Vite v5.4.10** (Configuración optimizada de Hot Module Replacement para cargas ultra-veloces).
+*   **Base de Datos en Servidor (BaaS)**: **Supabase** (Motor relacional PostgreSQL en la nube). Consumo optimizado mediante peticiones HTTP asíncronas directas al endpoint REST, evitando dependencias pesadas y garantizando compatibilidad multiplataforma.
+*   **Doble Persistencia**: Sincronizadores en segundo plano mediante `useEffect` que guardan y cargan el estado local instantáneamente en el navegador, espejándolo asíncronamente en Supabase.
+*   **Estilos y UX**: CSS3 Vanilla modular basado en **Tokens HSL variables** para dar soporte nativo a los temas claro/oscuro mediante selectores de atributos `data-theme`.
+
+---
+
+## 🔀 Flujo de Datos Relacionales (Deep Dive)
+
+La principal ventaja del sistema es la integración automatizada entre módulos. Cuando un evento ocurre en un módulo, se desencadena una cascada de transacciones lógicas en el motor del `AppContext.jsx`:
+
+```text
+                                 [ Módulo POS ]
+                                        │
+                           (Registrar Venta de Fármaco)
+                                        │
+                                        ▼
+                             [ AppContext Engine ]
+                                        │
+         ┌──────────────────────────────┼──────────────────────────────┐
+         ▼                              ▼                              ▼
+ [ Módulo Inventario ]       [ Módulo Contabilidad ]             [ Módulo CRM ]
+   Restar Unidades             Generar Factura XML            Acumular Puntos
+         │                              │                              │
+(¿Stock < Mínimo?)                      │                              │
+         │                              ▼                              ▼
+         ▼                      [ Conciliación IA ]           [ Ficha Paciente ]
+  [ Módulo Compras ]             Match Bancario               Historial Clínico
+Generar RFQ Automático
 ```
 
 ---
 
-## 📂 Estructura Completa del Proyecto (Folder Structure)
+## 🚀 Características Principales (Core Modules)
 
-Para garantizar la mantenibilidad y un crecimiento escalable, el proyecto divide de forma estricta el empaquetador del código fuente de producción:
+El sistema cuenta con **12 módulos funcionales autocontenidos** altamente integrados en el cliente y la base de datos distribuida:
+
+### 1. 👥 CRM & Fidelidad de Pacientes
+*   **Funcionalidades**: Fichas clínicas detalladas, historial de tratamientos médicos crónicos, administración de puntos de recompensa por compras.
+*   **Visualización**: Tablero Kanban interactivo para el seguimiento de leads comerciales y segmentación inteligente de pacientes hipertenso/diabéticos.
+
+### 2. 📈 Ventas e Ingresos
+*   **Funcionalidades**: Emisión y control de cotizaciones corporativas, aprobación de contratos de distribución mayorista y visualización analítica de ganancias mensuales.
+*   **Integración**: Interconectado directamente con el módulo contable para provisionar ingresos automáticamente.
+
+### 3. 💼 Contabilidad y Conciliación bancaria
+*   **Funcionalidades**: Libro mayor de transacciones, visualización del balance general activo, impuestos autocalculados (simulación XML de facturas electrónicas).
+*   **Tecnología Clave**: Conciliación automática de facturas mediante un algoritmo de coincidencia que simula auditoría por Inteligencia Artificial.
+
+### 4. 📦 Inventario y Almacén Físico
+*   **Funcionalidades**: Control estricto de stocks, semáforos visuales de proximidad de vencimiento y ajuste rápido de unidades (`+10`, `+50`, `+100` u).
+*   **Seguridad**: Confirmaciones explícitas de eliminación permanente para salvaguardar la consistencia operativa.
+
+### 5. 🛒 Compras y Auto-RFQ
+*   **Funcionalidades**: Registro de proveedores farmacéuticos nacionales (BAGO, INTI), historial de recepciones y automatización de reabastecimiento.
+*   **Flujo Inteligente**: Cuando el inventario de un fármaco cae por debajo de su límite crítico, el sistema genera de forma autónoma una Orden de Compra (RFQ) en estado "Borrador".
+
+### 6. 🧪 Manufactura (MRP)
+*   **Funcionalidades**: Registro de fórmulas magistrales farmacéuticas y mezclador de reactivos/ingredientes activos.
+*   **Impacto Contable**: Al fabricar un producto final, el sistema resta automáticamente el stock de materias primas e inyecta los costos de fabricación simulados en la contabilidad general.
+
+### 7. 👥 Recursos Humanos (RRHH)
+*   **Funcionalidades**: Administración de turnos y vacaciones del personal médico y administrativo.
+*   **Herramienta**: Checador digital biométrico (Check-In/Out) interactivo que captura el inicio/fin de jornada y calcula horas laboradas.
+
+### 8. 🖥️ Punto de Venta (POS)
+*   **Funcionalidades**: Interfaz táctil de caja registradora ultrarrápida, barra de búsqueda reactiva por categorías de medicamentos y visor de recibo electrónico imprimible.
+*   **Uso**: Optimizado con simulación de lector de códigos de barras.
+
+### 9. 🌐 Sitio Web & E-Commerce
+*   **Funcionalidades**: Portal comercial público en línea que expone el catálogo sincronizado directamente con la disponibilidad física del almacén central.
+*   **UX**: Pasarela de pago virtual integrada y chat médico de soporte técnico interactivo.
+
+### 10. 📣 Marketing y Fidelización
+*   **Funcionalidades**: Gestor de campañas de difusión masiva (SMS y correo electrónico).
+*   **Métricas**: Analíticas simuladas de clics, tasa de apertura y éxito de conversión en pacientes suscritos.
+
+### 11. 📅 Proyectos y Expansiones
+*   **Funcionalidades**: Planificación de campañas de salud pública y apertura de nuevas sucursales mediante listas de tareas ágiles con indicador de porcentaje de completado.
+
+### 12. 💬 Mesa de Ayuda (Helpdesk)
+*   **Funcionalidades**: Sistema de tickets para soporte técnico de farmacia y tele-consultas de salud administrado bajo niveles de acuerdo de servicio (SLA).
+
+---
+
+## 🔄 El Pipeline de Sincronización en Supabase
+
+La persistencia híbrida interactúa con Supabase de manera directa y optimizada. A continuación, se expone el funcionamiento del motor de sincronización.
+
+### 1. Lectura Inicial (Startup Sync)
+Al arrancar la aplicación, se consulta a Supabase cada dataset clave (`db_inventario`, `db_pacientes`, etc.) utilizando peticiones HTTP `GET` autenticadas por la Anon Key:
+```javascript
+const fetchFromSupabase = async (key) => {
+  const url = localStorage.getItem('supabase_url');
+  const apiKey = localStorage.getItem('supabase_key');
+  if (!url || !apiKey) return null;
+
+  try {
+    const cleanUrl = url.replace(/\/$/, "");
+    const res = await fetch(`${cleanUrl}/rest/v1/pharma_sync?key=eq.${key}&select=value`, {
+      method: 'GET',
+      headers: {
+        'apikey': apiKey,
+        'Authorization': `Bearer ${apiKey}`
+      }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      return data[0]?.value || null;
+    }
+  } catch (err) {
+    console.error('Failed to fetch from Supabase:', err);
+  }
+  return null;
+};
+```
+
+### 2. Escritura y Resolución de Conflictos (Upsert Pipeline)
+Cada actualización en los estados reactivos del ERP genera un re-guardado en LocalStorage y dispara asíncronamente un `POST` al endpoint REST de Supabase. Para prevenir sobreescrituras accidentales en sistemas distribuidos, se utiliza la cabecera `'Prefer': 'resolution=merge-duplicates'` que fuerza un comportamiento de **Upsert** automático:
+```javascript
+const saveToSupabase = async (key, val) => {
+  const url = localStorage.getItem('supabase_url');
+  const apiKey = localStorage.getItem('supabase_key');
+  if (!url || !apiKey) return;
+
+  try {
+    const cleanUrl = url.replace(/\/$/, "");
+    await fetch(`${cleanUrl}/rest/v1/pharma_sync`, {
+      method: 'POST',
+      headers: {
+        'apikey': apiKey,
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'resolution=merge-duplicates'
+      },
+      body: JSON.stringify({ key, value: val, updated_at: new Date().toISOString() })
+    });
+  } catch (err) {
+    console.error('Failed to sync to Supabase:', err);
+  }
+};
+```
+
+---
+
+## 📶 Algoritmo de Resiliencia Offline
+
+Si el ERP se queda sin conexión de red durante el registro de transacciones críticas en el POS, entra en funcionamiento la cola de transacciones locales (`OfflineQueue`).
+
+```text
+[ Venta en POS ] ──► ¿Conexión Activa? 
+                        ├───► SI ──► Procesar de forma inmediata (Online)
+                        └───► NO ──► Registrar ID temporal (ej. OFF-1234)
+                                      │
+                                      ▼
+                             Guardar en OfflineQueue
+                                      │
+                         (Almacenado localmente en caché)
+                                      │
+                          [ Restaurar Conexión ]
+                                      │
+                                      ▼
+                        Sincronizar Cola mediante FIFO
+```
+
+1.  **Captura**: El estado de red `isOnline` cambia a `false`.
+2.  **Encapsulado**: El método `registrarVentaPOS` intercepta el carrito de compras, le asigna un identificador temporal `OFF-XXXX` y añade la venta al array `offlineQueue` en LocalStorage.
+3.  **Restauración**: Una vez la conectividad se restablece, el usuario puede presionar **Sincronizar Datos** en el banner superior.
+4.  **Ejecución FIFO**: El sistema itera sobre la cola, procesa secuencialmente cada orden pendiente y vacía la cola local, actualizando el stock y emitiendo las facturas en la base de datos central de Supabase.
+
+---
+
+## 📂 Estructura de Directorios Detallada
+
+El proyecto cuenta con una separación limpia y estructurada de componentes React, módulos de lógica de negocios e inicialización del empaquetador:
 
 ```text
 ODOO-ERP/
 ├── ODOO-ERP/                      # Directorio principal de la aplicación React
-│   ├── dist/                      # Carpeta de distribución compilada para producción
-│   ├── public/                    # Activos estáticos públicos y metaetiquetas SEO
-│   ├── src/                       # Código fuente del proyecto
-│   │   ├── assets/                # Imágenes, recursos de marca y multimedia
-│   │   ├── components/            # Componentes de UI comunes y reutilizables
-│   │   │   ├── Layout.jsx         # Contenedor y UI principal del ERP (Sidebar, Header y Alertas)
-│   │   │   ├── Login.jsx          # Interfaz de acceso privado optimizada
-│   │   │   └── MobileFrame.jsx    # Envoltorio de simulación responsiva para dispositivos
-│   │   ├── context/               # Capa de estado global (React Context API)
-│   │   │   └── AppContext.jsx     # Proveedor global del estado, persistencia local y funciones core
-│   │   ├── modules/               # Módulos funcionales de la suite ERP (12 áreas)
-│   │   │   ├── CRM/               # Fichas de pacientes crónicos, puntos de fidelidad y Kanban de Leads
-│   │   │   ├── Compras/           # Control de RFQ de laboratorios y recepción de mercancías
-│   │   │   ├── Contabilidad/      # Conciliación bancaria automatizada por IA y facturas XML
-│   │   │   ├── Inventario/        # Control de lotes, semáforo de vencimientos y ajustes rápidos
-│   │   │   ├── Manufactura/       # MRP, mezclador de fórmulas magistrales y materias primas
-│   │   │   ├── Marketing/         # Campañas masivas por SMS y correo con traza de clics
-│   │   │   ├── MesaAyuda/         # Helpdesk con soporte médico, control de urgencias y SLAs
-│   │   │   ├── POS/               # Punto de Venta táctil rápido, buscador de fármacos y recibos
-│   │   │   ├── Proyectos/         # Gantt de tareas de expansión y campañas de vacunación
-│   │   │   ├── RRHH/              # Relación de personal, checador biométrico y vacaciones
-│   │   │   ├── SitioWeb/          # Portal e-commerce para clientes con chat médico activo
-│   │   │   └── Ventas/            # Contratos institucionales y cotizaciones mayoristas
-│   │   ├── App.css                # Estilos de navegación y enrutamiento
-│   │   ├── App.jsx                # Enrutador lógico y verificación de tokens de sesión
-│   │   ├── index.css              # Tokens de diseño HSL, Google Fonts y scrollbars
-│   │   └── main.jsx               # Punto de entrada de React en el DOM
-│   ├── eslint.config.js           # Reglas de análisis estático de código
+│   ├── dist/                      # Compilación estática de producción optimizada por Vite
+│   ├── public/                    # Archivos estáticos, iconos y metadatos del sitio
+│   ├── src/                       # Código fuente principal de la aplicación
+│   │   ├── assets/                # Imágenes de medicamentos y elementos multimedia de marca
+│   │   ├── components/            # Componentes de la interfaz de usuario general
+│   │   │   ├── Layout.jsx         # Frame principal del ERP: Sidebar de navegación, Header, alertas de red
+│   │   │   ├── Login.jsx          # UI y validación de credenciales del personal administrativo
+│   │   │   └── MobileFrame.jsx    # Simulador responsivo táctil (Iframe/Phone frame para test de UX)
+│   │   ├── context/               # Lógica del motor del ERP y sincronización de datos
+│   │   │   └── AppContext.jsx     # Contexto global, persistencia híbrida, triggers e integración Cloud
+│   │   ├── modules/               # Módulos funcionales de la suite (12 directorios desacoplados)
+│   │   │   ├── CRM/               # Vistas de leads, segmentación clínica y Kanban interactivo
+│   │   │   ├── Compras/           # Gestión de proveedores nacionales e ingreso físico de lotes
+│   │   │   ├── Contabilidad/      # Módulo fiscal, balance general e integración IA bancaria
+│   │   │   ├── Inventario/        # Control de semáforos de stock, fechas de vencimiento y códigos de lote
+│   │   │   ├── Manufactura/       # MRP, recetas farmacéuticas magistrales y costos de materias primas
+│   │   │   ├── Marketing/         # Envío simulado de SMS/Email con control analítico de clics
+│   │   │   ├── MesaAyuda/         # Helpdesk con soporte médico, niveles de SLA y tickets abiertos
+│   │   │   ├── POS/               # Punto de Venta táctil optimizado para terminales de caja
+│   │   │   ├── Proyectos/         # Diagrama Gantt y listas de tareas interdepartamentales
+│   │   │   ├── RRHH/              # Relación de personal, vacaciones e historial de entradas/salidas
+│   │   │   ├── SitioWeb/          # E-Commerce interactivo al público y chat virtual en tiempo real
+│   │   │   └── Ventas/            # Cotizaciones a granel e histórico de facturación mayorista
+│   │   ├── App.css                # Estilos globales de navegación e interactividad base
+│   │   ├── App.jsx                # Enrutador principal y validador de perfiles
+│   │   ├── index.css              # Tokens de diseño CSS (Variables HSL, scrollbars personalizadas, temas)
+│   │   └── main.jsx               # Renderizador principal del DOM de React
+│   ├── eslint.config.js           # Reglas de buenas prácticas y análisis estático
 │   ├── index.html                 # Esqueleto HTML5
-│   ├── package.json               # Manifiesto de dependencias y scripts de ejecución
-│   └── vite.config.js             # Configuración del servidor de desarrollo de Vite
+│   ├── package.json               # Dependencias de npm y scripts de ejecución
+│   └── vite.config.js             # Configuración del servidor y de hosts autorizados (Vite)
 ├── .gitattributes                 # Atributos de Git para codificación y fin de línea
 ├── LICENSE                        # Licencia del proyecto (MIT)
 └── README.md                      # Este documento (Documentación raíz del repositorio)
@@ -122,73 +281,127 @@ ODOO-ERP/
 
 ---
 
-## ⚙️ Configuración del Entorno (Environment Variables)
+## ⚙️ Configuración de Variables de Entorno
 
-El ERP cuenta con una integración flexible. La conexión con Supabase se establece a nivel cliente (permitiendo que cada usuario ingrese su propio nodo para fines de pruebas) a través del modal de **Configuración de Usuario ⚙️** en la UI principal. De manera alternativa, se pueden configurar variables de entorno estáticas en el empaquetador de la siguiente forma:
+El ERP utiliza un sistema híbrido. Se pueden pre-inyectar variables en tiempo de compilación o configurarlas dinámicamente en tiempo de ejecución en la UI del ERP (guardadas de forma segura en LocalStorage):
 
-| Variable / Clave | Origen / Ubicación | Nivel de Obligatoriedad | Descripción | Ejemplo de Formato Seguro |
+| Variable / Clave | Destino de Configuración | Requerido | Propósito Funcional | Formato de Ejemplo |
 | :--- | :--- | :--- | :--- | :--- |
-| `supabase_url` | Ajustes de Perfil / LocalStorage | **Requerido para Cloud Sync** | Dirección de la instancia REST de tu base de datos de Supabase. | `https://abc123xyz.supabase.co` |
-| `supabase_key` | Ajustes de Perfil / LocalStorage | **Requerido para Cloud Sync** | Clave pública anónima (Anon Key) de Supabase para firmar peticiones HTTP. | `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` |
-| `VITE_API_URL` | Archivo `.env` (Raíz del proyecto) | *Opcional* | Dirección base para microservicios externos de integración. | `https://api.pharma-sync.com/v1` |
-| `PORT` | Archivo `.env` (Raíz del proyecto) | *Opcional* | Puerto por defecto en el que se levantará la previsualización local. | `10000` |
+| `supabase_url` | Modal de Perfil / LocalStorage | **SI** | Endpoint de conexión REST de la base de datos Supabase | `https://xzyabc123.supabase.co` |
+| `supabase_key` | Modal de Perfil / LocalStorage | **SI** | Clave pública anónima (Anon Key) de Supabase | `eyJhbGciOiJIUzI1NiIsInR5cCI6...` |
+| `VITE_API_URL` | Archivo `.env` en raíz | *Opcional* | Dirección base de APIs externas | `https://api.pharma-sync.com` |
+| `PORT` | Archivo `.env` en raíz | *Opcional* | Puerto del servidor de previsualización local | `10000` |
 
-### 🗄️ Esquema Requerido en Supabase
-Para que la doble persistencia del ERP funcione, crea una tabla en el esquema `public` de tu base de datos Supabase con la siguiente estructura SQL:
+### 🗄️ Esquema SQL de la Base de Datos
+Para activar el motor en la nube, debes levantar la tabla `pharma_sync` en tu consola SQL de Supabase:
 
 ```sql
+-- Crear la tabla pharma_sync en el esquema public
 create table public.pharma_sync (
   key text primary key,
   value jsonb not null,
   updated_at timestamp with time zone default now()
 );
 
--- Habilitar acceso de lectura y escritura para el rol Anon (o configurar RLS según se requiera)
+-- Habilitar seguridad a nivel de filas (RLS)
 alter table public.pharma_sync enable row level security;
-create policy "Permitir select para todos" on public.pharma_sync for select using (true);
-create policy "Permitir insert/update para todos" on public.pharma_sync for all using (true);
+
+-- Crear políticas de acceso para el rol público anon
+create policy "Habilitar lectura publica anon" 
+  on public.pharma_sync 
+  for select 
+  using (true);
+
+create policy "Habilitar escritura publica anon" 
+  on public.pharma_sync 
+  for insert 
+  with check (true);
+
+create policy "Habilitar edicion publica anon" 
+  on public.pharma_sync 
+  for update 
+  using (true);
+```
+
+### 📄 Ejemplo del Payload JSON de Persistencia
+Supabase almacena en la columna `value` de la tabla `pharma_sync` el estado serializado completo de los módulos del ERP. Un ejemplo de datos para la clave `db_inventario` es:
+
+```json
+{
+  "key": "db_inventario",
+  "value": [
+    {
+      "id": "p1",
+      "nombre": "Paracetamol 500mg",
+      "stock": 45,
+      "lote": "L-PAR202",
+      "vencimiento": "2027-10-15",
+      "minStock": 20,
+      "precio": 2.5,
+      "categoria": "Analgesia",
+      "imagen": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400&q=80"
+    },
+    {
+      "id": "p2",
+      "nombre": "Ibuprofeno 400mg",
+      "stock": 12,
+      "lote": "L-IBU304",
+      "vencimiento": "2026-06-30",
+      "minStock": 15,
+      "precio": 3.8,
+      "categoria": "Antiinflamatorio",
+      "imagen": "https://images.unsplash.com/photo-1607619056574-7b8f304b3b8a?w=400&q=80"
+    }
+  ],
+  "updated_at": "2026-05-31T22:15:30.123Z"
+}
 ```
 
 ---
 
 ## 🛠️ Instalación y Despliegue Local (Paso a Paso)
 
-Siga estos pasos exactos para levantar el entorno completo de desarrollo en su máquina local:
+Sigue estos sencillos pasos para tener el entorno de desarrollo operando en tu computadora local:
 
-### 1. Clonar el Repositorio
+### 1. Prerrequisitos de Sistema
+Asegúrate de contar con las siguientes herramientas instaladas:
+*   **Node.js**: Versión LTS `v18.0.0` o superior (Recomendado `v20.x`).
+*   **npm**: Versión `v9.x` o superior (incluido por defecto con Node).
+
+### 2. Clonar el repositorio y acceder a la carpeta principal
 ```bash
 git clone https://github.com/Gengar-pro/ODOO-ERP.git
 cd ODOO-ERP
 ```
 
-### 2. Instalar Dependencias del Proyecto
-El package.json del proyecto React se encuentra en la subcarpeta `ODOO-ERP`:
+### 3. Instalar las dependencias en el subdirectorio de producción
 ```bash
 cd ODOO-ERP
 npm install
 ```
 
-### 3. Ejecución en Servidor de Desarrollo
-Para lanzar el servidor de Vite con recarga rápida (HMR):
+### 4. Lanzar el Servidor Local en Desarrollo
 ```bash
 npm run dev
 ```
-*El sistema estará disponible en su navegador en la dirección: `http://localhost:5173`.*
+*Vite levantará el servidor interactivo HMR. Abre en tu navegador la dirección: `http://localhost:5173`.*
 
-### 4. Conexión con Supabase
-1. Inicie sesión en el ERP con cualquier credencial válida (ver tabla abajo).
-2. Haga clic en el botón de **Configuración ⚙️** en la parte superior derecha.
-3. Ingrese el **Project URL** y el **Anon API Key** en la sección "Base de Datos en la Nube".
-4. Haga clic en **Guardar Perfil**. El sistema se recargará automáticamente y se conectará en tiempo real.
+### 5. Conectar con la Nube de Supabase
+1. Inicie sesión en el sistema usando cualquiera de las credenciales de rol descritas abajo.
+2. Presione el botón **Configuración ⚙️** (esquina superior derecha).
+3. En la sección **Base de Datos en la Nube (Supabase)**, pegue su URL del proyecto y su Anon API Key.
+4. Haga clic en **Guardar Perfil**. El sistema recargará la pestaña automáticamente e importará la información actual de la base de datos en la nube.
 
 ---
 
 ## 🔑 Credenciales Seguras de los Roles de Acceso
 
-| Usuario | Contraseña | Rol Corporativo | Permisos y Cobertura de Módulos |
+El acceso al ERP está protegido por perfiles de usuario. Las credenciales seguras configuradas en base de datos son:
+
+| Usuario | Contraseña | Rol Asignado | Módulos Autorizados en la Suite |
 | :--- | :--- | :--- | :--- |
-| `admin` | **`admin999`** | Administrador | Acceso total e ilimitado a los 12 módulos funcionales. |
-| `farmacia` | **`farmacia999`** | Regente Farmacéutico | POS, Inventario, Manufactura (MRP), Mesa de Ayuda. |
+| `admin` | **`admin999`** | Administrador | **Acceso Total** a los 12 módulos funcionales. |
+| `farmacia` | **`farmacia999`** | Regente Farmacéutico | POS, Inventario, Manufactura, Mesa de Ayuda. |
 | `contas` | **`contas999`** | Contador General | Contabilidad, Ventas, Compras, CRM. |
 | `RRHH` | **`RRHH999`** | Recursos Humanos | RRHH, Proyectos, Mesa de Ayuda. |
 | `stock` | **`stock999`** | Encargado Almacén | Inventario, Compras. |
@@ -198,14 +411,17 @@ npm run dev
 
 ## 🌐 Despliegue en Producción (Render.com)
 
-El pipeline de integración continua (CI/CD) de Render.com está configurado para compilar y desplegar automáticamente cada commit a producción:
+El ERP se encuentra completamente operativo y desplegado de manera continua en la plataforma de Render.com. Para recrear o configurar el pipeline de integración continua (CI/CD) para nuevas ramas, siga esta plantilla de configuración:
 
-1.  **Tipo de Servicio**: `Static Site`
-2.  **Nombre del Proyecto**: `pharma-sync-erp`
-3.  **Root Directory**: `ODOO-ERP` (muy importante, ya que el proyecto React se aloja en esta subcarpeta).
-4.  **Build Command**: `npm install && npm run build`
-5.  **Publish Directory**: `dist`
-6.  **Variables de Entorno**: Se pueden pre-inyectar variables en la sección *Environment* de Render de ser necesario.
+1.  **Tipo de Servicio**: `Static Site` (Sitio web estático).
+2.  **Root Directory**: `ODOO-ERP` (indica a Render que debe ejecutar los comandos dentro de la subcarpeta del proyecto React).
+3.  **Build Command**: `npm install && npm run build`
+4.  **Publish Directory**: `dist`
+5.  **Headers de SPA (Redirecciones)**:
+    Para evitar errores `404 Not Found` en navegadores al refrescar rutas personalizadas en aplicaciones React que utilizan enrutadores lógicos en el cliente, configure la siguiente regla de redirección (*Rewrite Rule*) en la consola de Render:
+    *   **Source**: `/*`
+    *   **Destination**: `/index.html`
+    *   **Action**: `Rewrite`
 
 ---
 
@@ -232,5 +448,5 @@ El pipeline de integración continua (CI/CD) de Render.com está configurado par
 ---
 
 <div align="center">
-  <p>Desarrollado para<b>Pharma-Sync Suite</b> — El estándar del futuro en la gestión farmacéutica moderna.</p>
+  <p>Desarrollado para <b>Pharma-Sync Suite</b> — El estándar del futuro en la gestión farmacéutica moderna.</p>
 </div>
