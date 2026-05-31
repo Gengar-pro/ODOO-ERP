@@ -166,8 +166,7 @@ export default function Layout() {
             <div className="header-left">
               <button 
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="icon-btn" 
-                style={{ display: activeView === 'mobile' ? 'flex' : 'none' }}
+                className="icon-btn mobile-menu-toggle"
               >
                 ☰
               </button>

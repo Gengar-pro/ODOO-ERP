@@ -1086,3 +1086,93 @@ body {
   justify-content: center;
   gap: 8px;
 }
+
+/* ==========================================
+   RESPONSIVE DESIGN (MEDIA QUERIES)
+   ========================================== */
+
+.mobile-menu-toggle {
+  display: none;
+}
+
+@media (max-width: 991px) {
+  .mobile-menu-toggle {
+    display: flex !important;
+  }
+
+  .sidebar {
+    left: -260px;
+    box-shadow: none;
+  }
+
+  .sidebar.open {
+    left: 0 !important;
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.25);
+  }
+
+  .main-workspace {
+    margin-left: 0 !important;
+    width: 100%;
+  }
+
+  .header {
+    padding: 0 16px;
+  }
+
+  .content-area {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  /* POS Responsive Layout */
+  .pos-container {
+    grid-template-columns: 1fr;
+    height: auto;
+    overflow-y: visible;
+  }
+
+  .pos-products {
+    overflow: visible;
+    height: auto;
+  }
+
+  .pos-cart {
+    height: auto;
+    margin-top: 20px;
+  }
+
+  /* Dashboard Cards */
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Table responsiveness */
+  .table-container {
+    overflow-x: auto;
+    width: 100%;
+  }
+
+  .custom-table {
+    min-width: 600px;
+  }
+
+  /* CRM Kanban responsiveness */
+  .kanban-board {
+    padding-bottom: 20px;
+  }
+
+  /* Login card responsiveness */
+  .login-card {
+    width: 100%;
+    padding: 24px 16px;
+  }
+  
+  .header-right {
+    gap: 8px;
+  }
+  
+  .view-selector {
+    display: none !important;
+  }
+}
