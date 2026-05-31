@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { AppContext } from '../context/AppContext';
-import { KeyRound, ShieldAlert, Sparkles, UserCheck } from 'lucide-react';
+import { KeyRound, ShieldAlert } from 'lucide-react';
 
 export default function Login() {
   const { login } = useContext(AppContext);
@@ -22,20 +22,6 @@ export default function Login() {
       }
     }, 800);
   };
-
-  const handleQuickLogin = (demoUser, demoPass) => {
-    setUsername(demoUser);
-    setPassword(demoPass);
-  };
-
-  const credentials = [
-    { label: 'Administrador (Todo)', user: 'admin', pass: 'admin', color: '#00E5FF' },
-    { label: 'Regente Farmacéutico', user: 'farmacia', pass: 'farma789', color: '#00E676' },
-    { label: 'Contador General', user: 'contas', pass: 'contas123', color: '#FFD600' },
-    { label: 'Recursos Humanos', user: 'RRHH', pass: 'RRHH', color: '#29B6F6' },
-    { label: 'Encargado Almacén', user: 'stock', pass: 'stock456', color: '#FF5252' },
-    { label: 'Marketing y Web', user: 'market', pass: 'market321', color: '#E040FB' }
-  ];
 
   return (
     <div className="login-container">
@@ -106,33 +92,6 @@ export default function Login() {
             )}
           </button>
         </form>
-
-        <div className="demo-credentials">
-          <div className="demo-credentials-title">
-            <Sparkles size={12} style={{ marginRight: '6px', color: 'var(--primary)' }} />
-            Acceso Rápido Demo (Haz clic para auto-rellenar):
-          </div>
-          <div className="demo-grid">
-            {credentials.map((cred, idx) => (
-              <div
-                key={idx}
-                className="demo-item"
-                onClick={() => handleQuickLogin(cred.user, cred.pass)}
-                style={{
-                  borderLeft: `3px solid ${cred.color}`,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '2px'
-                }}
-              >
-                <span style={{ fontWeight: '700', fontSize: '10px' }}>{cred.label}</span>
-                <span style={{ color: 'var(--text-muted)', fontSize: '9px' }}>
-                  {cred.user} / {cred.pass}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   );

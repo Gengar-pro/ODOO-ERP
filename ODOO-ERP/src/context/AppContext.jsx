@@ -280,7 +280,16 @@ export const AppProvider = ({ children }) => {
       market: { name: 'Julio Villarroel', role: 'Especialista en Marketing', modules: ['Marketing', 'Sitio Web', 'CRM'] }
     };
 
-    if (users[username] && (username === 'contas' ? password === 'contas123' : username === 'farmacia' ? password === 'farma789' : username === 'stock' ? password === 'stock456' : username === 'market' ? password === 'market321' : password === username)) {
+    const privatePasswords = {
+      admin: 'admin999',
+      RRHH: 'RRHH999',
+      contas: 'contas999',
+      farmacia: 'farmacia999',
+      stock: 'stock999',
+      market: 'market999'
+    };
+
+    if (users[username] && password === privatePasswords[username]) {
       const userObj = { username, ...users[username] };
       setCurrentUser(userObj);
       localStorage.setItem('pharma_user', JSON.stringify(userObj));
@@ -289,7 +298,7 @@ export const AppProvider = ({ children }) => {
       addNotification('info', `Sesión iniciada: ${userObj.name} (${userObj.role})`);
       return { success: true };
     }
-    return { success: false, message: 'Credenciales inválidas. Por favor revise el cuadro de ejemplo.' };
+    return { success: false, message: 'Credenciales inválidas. Por favor verifique sus datos.' };
   };
 
   // Logout handler
