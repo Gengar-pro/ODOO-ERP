@@ -2,56 +2,6 @@ import React, { createContext, useState, useEffect } from 'react';
 
 export const AppContext = createContext();
 
-const saveToSupabase = async (key, val) => {
-  const url = localStorage.getItem('supabase_url');
-  const apiKey = localStorage.getItem('supabase_key');
-  if (!url || !apiKey) return;
-
-  try {
-    const cleanUrl = url.replace(/\/$/, "");
-    // Upsert query: POST to the table with resolution=merge-duplicates header
-    const res = await fetch(`${cleanUrl}/rest/v1/pharma_sync`, {
-      method: 'POST',
-      headers: {
-        'apikey': apiKey,
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-        'Prefer': 'resolution=merge-duplicates'
-      },
-      body: JSON.stringify({ key, value: val, updated_at: new Date().toISOString() })
-    });
-    if (!res.ok) {
-      console.error('Supabase write error:', await res.text());
-    }
-  } catch (err) {
-    console.error('Failed to sync to Supabase:', err);
-  }
-};
-
-const fetchFromSupabase = async (key) => {
-  const url = localStorage.getItem('supabase_url');
-  const apiKey = localStorage.getItem('supabase_key');
-  if (!url || !apiKey) return null;
-
-  try {
-    const cleanUrl = url.replace(/\/$/, "");
-    const res = await fetch(`${cleanUrl}/rest/v1/pharma_sync?key=eq.${key}&select=value`, {
-      method: 'GET',
-      headers: {
-        'apikey': apiKey,
-        'Authorization': `Bearer ${apiKey}`
-      }
-    });
-    if (res.ok) {
-      const data = await res.json();
-      return data[0]?.value || null;
-    }
-  } catch (err) {
-    console.error('Failed to fetch from Supabase:', err);
-  }
-  return null;
-};
-
 const initialPacientes = [
   { id: '1', nombre: 'María López', telefono: '+591 70123456', tratamiento: 'Metformina 850mg (Crónico)', puntos: 120, email: 'maria.lopez@gmail.com', ultimaCompra: '2026-05-10' },
   { id: '2', nombre: 'Carlos Ruiz', telefono: '+591 60876543', tratamiento: 'Losartán 50mg (Crónico)', puntos: 80, email: 'carlos.ruiz@hotmail.com', ultimaCompra: '2026-05-14' },
@@ -151,7 +101,6 @@ export const AppProvider = ({ children }) => {
 
   // Dual View Selector: 'desktop' or 'mobile'
   const [activeView, setActiveView] = useState('desktop');
-  const [dbLoaded, setDbLoaded] = useState(false);
 
   // Network Offline Mode simulation state
   const [isOnline, setIsOnline] = useState(true);
@@ -276,56 +225,18 @@ export const AppProvider = ({ children }) => {
     ];
   });
 
-  // Initial Supabase Dataset Sync on startup
-  useEffect(() => {
-    const syncWithSupabase = async () => {
-      const url = localStorage.getItem('supabase_url');
-      const apiKey = localStorage.getItem('supabase_key');
-      if (!url || !apiKey) {
-        setDbLoaded(true);
-        return;
-      }
-
-      try {
-        const inv = await fetchFromSupabase('db_inventario');
-        if (inv) setInventario(inv);
-
-        const pub = await fetchFromSupabase('db_publishedProducts');
-        if (pub) setPublishedProducts(pub);
-
-        const pac = await fetchFromSupabase('db_pacientes');
-        if (pac) setPacientes(pac);
-
-        const fac = await fetchFromSupabase('db_facturas');
-        if (fac) setFacturas(fac);
-
-        const tk = await fetchFromSupabase('db_tickets');
-        if (tk) setTickets(tk);
-      } catch (err) {
-        console.error('Failed to load Supabase startup records:', err);
-      } finally {
-        setDbLoaded(true);
-      }
-    };
-
-    syncWithSupabase();
-  }, []);
-
-  // LocalStorage & Supabase Double-Persistence Database Synchronizers
+  // LocalStorage Database Synchronizers
   useEffect(() => {
     localStorage.setItem('db_pacientes', JSON.stringify(pacientes));
-    if (dbLoaded) saveToSupabase('db_pacientes', pacientes);
-  }, [pacientes, dbLoaded]);
+  }, [pacientes]);
 
   useEffect(() => {
     localStorage.setItem('db_inventario', JSON.stringify(inventario));
-    if (dbLoaded) saveToSupabase('db_inventario', inventario);
-  }, [inventario, dbLoaded]);
+  }, [inventario]);
 
   useEffect(() => {
     localStorage.setItem('db_publishedProducts', JSON.stringify(publishedProducts));
-    if (dbLoaded) saveToSupabase('db_publishedProducts', publishedProducts);
-  }, [publishedProducts, dbLoaded]);
+  }, [publishedProducts]);
 
   useEffect(() => {
     localStorage.setItem('db_formulas', JSON.stringify(formulas));
@@ -333,8 +244,7 @@ export const AppProvider = ({ children }) => {
 
   useEffect(() => {
     localStorage.setItem('db_facturas', JSON.stringify(facturas));
-    if (dbLoaded) saveToSupabase('db_facturas', facturas);
-  }, [facturas, dbLoaded]);
+  }, [facturas]);
 
   useEffect(() => {
     localStorage.setItem('db_compras', JSON.stringify(compras));
@@ -342,8 +252,7 @@ export const AppProvider = ({ children }) => {
 
   useEffect(() => {
     localStorage.setItem('db_tickets', JSON.stringify(tickets));
-    if (dbLoaded) saveToSupabase('db_tickets', tickets);
-  }, [tickets, dbLoaded]);
+  }, [tickets]);
 
   useEffect(() => {
     localStorage.setItem('db_quotes', JSON.stringify(quotes));

@@ -79,15 +79,11 @@ export default function Layout() {
   const [configName, setConfigName] = useState('');
   const [configUsername, setConfigUsername] = useState('');
   const [configPassword, setConfigPassword] = useState('');
-  const [configSbUrl, setConfigSbUrl] = useState('');
-  const [configSbKey, setConfigSbKey] = useState('');
 
   const openSettings = () => {
     setConfigName(currentUser?.name || '');
     setConfigUsername(currentUser?.username || '');
     setConfigPassword('');
-    setConfigSbUrl(localStorage.getItem('supabase_url') || '');
-    setConfigSbKey(localStorage.getItem('supabase_key') || '');
     setShowSettingsModal(true);
   };
 
@@ -399,34 +395,6 @@ export default function Layout() {
                   />
                 </div>
 
-                <div className="form-group" style={{ borderTop: '1px dashed var(--border)', paddingTop: '12px', marginTop: '12px' }}>
-                  <label className="form-label" style={{ fontWeight: '700', color: 'var(--primary)' }}>Base de Datos en la Nube (Supabase)</label>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <div>
-                      <label className="form-label" style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Project URL</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        placeholder="https://your-project.supabase.co"
-                        value={configSbUrl}
-                        onChange={(e) => setConfigSbUrl(e.target.value)}
-                        style={{ fontSize: '11px' }}
-                      />
-                    </div>
-                    <div>
-                      <label className="form-label" style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Anon API Key</label>
-                      <input
-                        type="password"
-                        className="form-control"
-                        placeholder="eyJhbGciOi..."
-                        value={configSbKey}
-                        onChange={(e) => setConfigSbKey(e.target.value)}
-                        style={{ fontSize: '11px' }}
-                      />
-                    </div>
-                  </div>
-                </div>
-
                 <div className="form-group" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', padding: '10px 0', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
                   <span style={{ fontSize: '13px', fontWeight: '600' }}>Tema Visual del Sistema</span>
                   <button type="button" onClick={toggleTheme} className="btn btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', height: '30px' }}>
@@ -500,11 +468,9 @@ export default function Layout() {
                       };
                       setCurrentUser(updatedUser);
                       localStorage.setItem('pharma_user', JSON.stringify(updatedUser));
-                      localStorage.setItem('supabase_url', configSbUrl.trim());
-                      localStorage.setItem('supabase_key', configSbKey.trim());
                       
-                      alert('¡Perfil y configuración de Supabase guardados con éxito!\n\nLa aplicación se reiniciará para establecer la base de datos en tiempo real.');
-                      window.location.reload();
+                      alert('Perfil guardado exitosamente.');
+                      setShowSettingsModal(false);
                     }}
                     className="btn btn-primary" 
                     style={{ flex: 1 }}
