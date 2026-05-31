@@ -64,6 +64,7 @@ export default function POSModule() {
   const processPayment = () => {
     const res = registrarVentaPOS(cart, selectedPaciente || null, paymentMethod);
     if (res.success) {
+      setShowPaymentModal(false);
       if (res.offline) {
         alert(`¡Venta Registrada Fuera de Línea (Offline) con éxito!\n\nID Temporal: ${res.id}\nLa transacción se sincronizará automáticamente en cuanto se restablezca la conexión de red.`);
       } else {
@@ -71,7 +72,6 @@ export default function POSModule() {
       }
       setCart([]);
       setSelectedPaciente('');
-      setShowPaymentModal(false);
       setPaymentMethod('');
       setCashReceived('');
       setChangeAmount(0);

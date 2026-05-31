@@ -52,11 +52,25 @@ export default function InventarioModule() {
   };
 
   const handleSaveStockAdjust = (updated) => {
-    setInventario(prev => prev.map(p => p.id === updated.id ? updated : p));
-    addNotification('info', `Inventario: Ajuste manual de stock de ${updated.nombre} guardado.`);
     setSelectedStockAdjust(null);
+    setInventario(prev => (prev || []).map(p => p.id === updated.id ? updated : p));
+    if (setPublishedProducts) {
+      setPublishedProducts(prev => (prev || []).map(p => p.id === updated.id ? { ...p, ...updated, webPrice: p.webPrice || p.precio } : p));
+    }
+    addNotification('info', `Inventario: Ajuste manual de stock de ${updated.nombre} guardado.`);
     if (scannedProduct && scannedProduct.id === updated.id) {
       setScannedProduct(updated);
+    }
+  };
+
+  const handleAdjustImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file && selectedStockAdjust) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSelectedStockAdjust({ ...selectedStockAdjust, imagen: reader.result });
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -387,6 +401,53 @@ export default function InventarioModule() {
                 onChange={(e) => setSelectedStockAdjust({ ...selectedStockAdjust, vencimiento: e.target.value })}
                 placeholder="AAAA-MM-DD"
               />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Actualizar Imagen del Medicamento</label>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Pegar URL de Imagen (Ej: https://...)"
+                  value={selectedStockAdjust.imagen && selectedStockAdjust.imagen.startsWith('data:image/') ? '' : selectedStockAdjust.imagen}
+                  onChange={(e) => setSelectedStockAdjust({ ...selectedStockAdjust, imagen: e.target.value })}
+                  style={{ fontSize: '11px' }}
+                />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '10px', color: 'var(--text-muted)' }}>
+                  <span>— o —</span>
+                </div>
+                
+                <label style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                  padding: '6px 12px',
+                  borderRadius: '6px',
+                  border: '1px dashed var(--border)',
+                  backgroundColor: 'var(--bg-main)',
+                  cursor: 'pointer',
+                  fontSize: '11px',
+                  fontWeight: '600'
+                }}>
+                  <Upload size={12} style={{ color: 'var(--primary)' }} />
+                  <span>Subir Foto Local (Reemplazar)</span>
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    onChange={handleAdjustImageUpload} 
+                    style={{ display: 'none' }}
+                  />
+                </label>
+                
+                {selectedStockAdjust.imagen && selectedStockAdjust.imagen.startsWith('data:image/') && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
+                    <Check size={12} style={{ color: 'var(--success)' }} />
+                    <span style={{ fontSize: '10px', color: 'var(--success)', fontWeight: '700' }}>Imagen local cargada exitosamente</span>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="form-group" style={{ borderTop: '1px dashed var(--border)', paddingTop: '12px', marginTop: '12px' }}>
