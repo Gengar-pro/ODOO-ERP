@@ -10,13 +10,13 @@ const initialPacientes = [
 ];
 
 const initialInventario = [
-  { id: 'p1', nombre: 'Paracetamol 500mg', stock: 45, lote: 'L-PAR202', vencimiento: '2027-10-15', minStock: 20, precio: 2.5, categoria: 'Analgesia' },
-  { id: 'p2', nombre: 'Ibuprofeno 400mg', stock: 12, lote: 'L-IBU304', vencimiento: '2026-06-30', minStock: 15, precio: 3.8, categoria: 'Antiinflamatorio' }, // Vencimiento cercano y stock bajo!
-  { id: 'p3', nombre: 'Metformina 850mg', stock: 68, lote: 'L-MET101', vencimiento: '2028-02-28', minStock: 30, precio: 4.2, categoria: 'Antidiabético' },
-  { id: 'p4', nombre: 'Losartán 50mg', stock: 9, lote: 'L-LOS509', vencimiento: '2027-01-20', minStock: 10, precio: 5.5, categoria: 'Cardiovascular' }, // Stock bajo!
-  { id: 'p5', nombre: 'Atorvastatina 20mg', stock: 32, lote: 'L-ATO808', vencimiento: '2027-08-05', minStock: 12, precio: 6.0, categoria: 'Cardiovascular' },
-  { id: 'p6', nombre: 'Amoxicilina 500mg', stock: 5, lote: 'L-AMO402', vencimiento: '2026-05-25', minStock: 15, precio: 7.5, categoria: 'Antibiótico' }, // Expirando en días y stock crítico!
-  { id: 'p7', nombre: 'Preparación Magistral Antiacné', stock: 3, lote: 'M-ACN01', vencimiento: '2026-08-10', minStock: 5, precio: 45.0, categoria: 'Fórmula Magistral' }
+  { id: 'p1', nombre: 'Paracetamol 500mg', stock: 45, lote: 'L-PAR202', vencimiento: '2027-10-15', minStock: 20, precio: 2.5, categoria: 'Analgesia', imagen: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400&q=80' },
+  { id: 'p2', nombre: 'Ibuprofeno 400mg', stock: 12, lote: 'L-IBU304', vencimiento: '2026-06-30', minStock: 15, precio: 3.8, categoria: 'Antiinflamatorio', imagen: 'https://images.unsplash.com/photo-1607619056574-7b8f304b3b8a?w=400&q=80' },
+  { id: 'p3', nombre: 'Metformina 850mg', stock: 68, lote: 'L-MET101', vencimiento: '2028-02-28', minStock: 30, precio: 4.2, categoria: 'Antidiabético', imagen: 'https://images.unsplash.com/photo-1585435557343-3b092031a831?w=400&q=80' },
+  { id: 'p4', nombre: 'Losartán 50mg', stock: 9, lote: 'L-LOS509', vencimiento: '2027-01-20', minStock: 10, precio: 5.5, categoria: 'Cardiovascular', imagen: 'https://images.unsplash.com/photo-1628771065518-0d82f11181a6?w=400&q=80' },
+  { id: 'p5', nombre: 'Atorvastatina 20mg', stock: 32, lote: 'L-ATO808', vencimiento: '2027-08-05', minStock: 12, precio: 6.0, categoria: 'Cardiovascular', imagen: 'https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=400&q=80' },
+  { id: 'p6', nombre: 'Amoxicilina 500mg', stock: 5, lote: 'L-AMO402', vencimiento: '2026-05-25', minStock: 15, precio: 7.5, categoria: 'Antibiótico', imagen: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=400&q=80' },
+  { id: 'p7', nombre: 'Preparación Magistral Antiacné', stock: 3, lote: 'M-ACN01', vencimiento: '2026-08-10', minStock: 5, precio: 45.0, categoria: 'Fórmula Magistral', imagen: 'https://images.unsplash.com/photo-1608248597481-496100c80836?w=400&q=80' }
 ];
 
 const initialFormulas = [
@@ -72,7 +72,22 @@ const initialProyectos = [
   { id: 'pr2', nombre: 'Apertura de Sucursal Zona Sur', tareas: 15, completado: 4, encargado: 'Operaciones', fin: '2026-07-15' }
 ];
 
+const initialUsers = [
+  { username: 'admin', password: 'admin999', name: 'Admin Pharma', role: 'Administrador', modules: ['CRM', 'Ventas', 'Contabilidad', 'Inventario', 'Compras', 'Manufactura', 'RRHH', 'Punto de Venta', 'Sitio Web', 'Marketing', 'Proyectos', 'Mesa de Ayuda'] },
+  { username: 'RRHH', password: 'RRHH999', name: 'Lic. Sofía Montenegro', role: 'Recursos Humanos', modules: ['RRHH', 'Proyectos', 'Mesa de Ayuda'] },
+  { username: 'contas', password: 'contas999', name: 'Mónica Vaca', role: 'Contador', modules: ['Contabilidad', 'Ventas', 'Compras', 'CRM'] },
+  { username: 'farmacia', password: 'farmacia999', name: 'Lic. Eduardo Sotomayor', role: 'Regente Farmacéutico', modules: ['Punto de Venta', 'Inventario', 'Manufactura', 'Mesa de Ayuda'] },
+  { username: 'stock', password: 'stock999', name: 'Patricia Benavidez', role: 'Encargado de Almacén', modules: ['Inventario', 'Compras'] },
+  { username: 'market', password: 'market999', name: 'Julio Villarroel', role: 'Especialista en Marketing', modules: ['Marketing', 'Sitio Web', 'CRM'] }
+];
+
 export const AppProvider = ({ children }) => {
+  // Database States loaded from LocalStorage or mock fallback
+  const [usersList, setUsersList] = useState(() => {
+    const saved = localStorage.getItem('db_usersList');
+    return saved ? JSON.parse(saved) : initialUsers;
+  });
+
   // Session State
   const [currentUser, setCurrentUser] = useState(() => {
     const saved = localStorage.getItem('pharma_user');
@@ -99,6 +114,11 @@ export const AppProvider = ({ children }) => {
   const [inventario, setInventario] = useState(() => {
     const saved = localStorage.getItem('db_inventario');
     return saved ? JSON.parse(saved) : initialInventario;
+  });
+
+  const [publishedProducts, setPublishedProducts] = useState(() => {
+    const saved = localStorage.getItem('db_publishedProducts');
+    return saved ? JSON.parse(saved) : inventario.slice(0, 4).map(p => ({ ...p, webPrice: p.precio }));
   });
   const [formulas, setFormulas] = useState(() => {
     const saved = localStorage.getItem('db_formulas');
@@ -215,6 +235,10 @@ export const AppProvider = ({ children }) => {
   }, [inventario]);
 
   useEffect(() => {
+    localStorage.setItem('db_publishedProducts', JSON.stringify(publishedProducts));
+  }, [publishedProducts]);
+
+  useEffect(() => {
     localStorage.setItem('db_formulas', JSON.stringify(formulas));
   }, [formulas]);
 
@@ -271,31 +295,12 @@ export const AppProvider = ({ children }) => {
 
   // Login handler
   const login = (username, password) => {
-    const users = {
-      admin: { name: 'Admin Pharma', role: 'Administrador', modules: ['CRM', 'Ventas', 'Contabilidad', 'Inventario', 'Compras', 'Manufactura', 'RRHH', 'Punto de Venta', 'Sitio Web', 'Marketing', 'Proyectos', 'Mesa de Ayuda'] },
-      RRHH: { name: 'Lic. Sofía Montenegro', role: 'Recursos Humanos', modules: ['RRHH', 'Proyectos', 'Mesa de Ayuda'] },
-      contas: { name: 'Mónica Vaca', role: 'Contador', modules: ['Contabilidad', 'Ventas', 'Compras', 'CRM'] },
-      farmacia: { name: 'Lic. Eduardo Sotomayor', role: 'Regente Farmacéutico', modules: ['Punto de Venta', 'Inventario', 'Manufactura', 'Mesa de Ayuda'] },
-      stock: { name: 'Patricia Benavidez', role: 'Encargado de Almacén', modules: ['Inventario', 'Compras'] },
-      market: { name: 'Julio Villarroel', role: 'Especialista en Marketing', modules: ['Marketing', 'Sitio Web', 'CRM'] }
-    };
-
-    const privatePasswords = {
-      admin: 'admin999',
-      RRHH: 'RRHH999',
-      contas: 'contas999',
-      farmacia: 'farmacia999',
-      stock: 'stock999',
-      market: 'market999'
-    };
-
-    if (users[username] && password === privatePasswords[username]) {
-      const userObj = { username, ...users[username] };
-      setCurrentUser(userObj);
-      localStorage.setItem('pharma_user', JSON.stringify(userObj));
-      // Set active module to their first authorized module
-      setActiveModule(users[username].modules[0]);
-      addNotification('info', `Sesión iniciada: ${userObj.name} (${userObj.role})`);
+    const userFound = usersList.find(u => u.username.toLowerCase() === username.toLowerCase() && u.password === password);
+    if (userFound) {
+      setCurrentUser(userFound);
+      localStorage.setItem('pharma_user', JSON.stringify(userFound));
+      setActiveModule(userFound.modules[0]);
+      addNotification('info', `Sesión iniciada: ${userFound.name} (${userFound.role})`);
       return { success: true };
     }
     return { success: false, message: 'Credenciales inválidas. Por favor verifique sus datos.' };
@@ -424,15 +429,16 @@ export const AppProvider = ({ children }) => {
 
   // Sync Offline Queue
   const syncOfflineOrders = () => {
-    if (offlineQueue.length === 0) return;
-    
     setIsOnline(true);
-    // Process each queued order
-    offlineQueue.forEach(order => {
-      registrarVentaPOS(order.cart, order.clienteId, order.paymentMethod);
-    });
-    setOfflineQueue([]);
-    addNotification('success', '¡Conexión restaurada! Se sincronizaron todas las ventas pendientes de la base local.');
+    if (offlineQueue.length > 0) {
+      offlineQueue.forEach(order => {
+        registrarVentaPOS(order.cart, order.clienteId, order.paymentMethod);
+      });
+      setOfflineQueue([]);
+      addNotification('success', '¡Conexión restaurada! Se sincronizaron todas las ventas pendientes de la base local.');
+    } else {
+      addNotification('success', '¡Conexión restaurada! El sistema vuelve a estar en línea.');
+    }
   };
 
   // Recepción de RFQ Compras -> suma stock
@@ -562,7 +568,10 @@ export const AppProvider = ({ children }) => {
 
   return (
     <AppContext.Provider value={{
+      usersList,
+      setUsersList,
       currentUser,
+      setCurrentUser,
       activeTheme,
       setActiveTheme,
       activeView,
@@ -576,6 +585,8 @@ export const AppProvider = ({ children }) => {
       setPacientes,
       inventario,
       setInventario,
+      publishedProducts,
+      setPublishedProducts,
       formulas,
       setFormulas,
       facturas,
@@ -621,4 +632,4 @@ export const AppProvider = ({ children }) => {
       {children}
     </AppContext.Provider>
   );
-};
+}

@@ -1,15 +1,11 @@
 import React, { useContext, useState } from 'react';
 import { AppContext } from '../../context/AppContext';
-import { Globe, ShoppingCart, MessageSquare, Send, Plus, X, Laptop } from 'lucide-react';
+import { Globe, ShoppingCart, MessageSquare, Send, Plus, X, Laptop, Package } from 'lucide-react';
 
 export default function SitioWebModule() {
-  const { chatMessages, sendChatMessage, inventario, facturas, addNotification } = useContext(AppContext);
+  const { chatMessages, sendChatMessage, inventario, facturas, addNotification, publishedProducts, setPublishedProducts } = useContext(AppContext);
   const [typedMessage, setTypedMessage] = useState('');
 
-  // Local state for interactive catalogue adjustment
-  const [publishedProducts, setPublishedProducts] = useState(() => {
-    return inventario.slice(0, 4).map(p => ({ ...p, webPrice: p.precio }));
-  });
   const [showAddWebProductModal, setShowAddWebProductModal] = useState(false);
   const [selectedInventarioId, setSelectedInventarioId] = useState(inventario[4]?.id || '');
 
@@ -106,7 +102,17 @@ export default function SitioWebModule() {
                   >
                     <X size={14} />
                   </button>
-                  <div style={{ fontSize: '24px', marginBottom: '6px' }}>💊</div>
+                  {prod.imagen ? (
+                    <img 
+                      src={prod.imagen} 
+                      alt={prod.nombre} 
+                      style={{ width: '100%', height: '110px', objectFit: 'cover', borderRadius: '6px', marginBottom: '8px' }} 
+                    />
+                  ) : (
+                    <div style={{ height: '110px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--bg-main)', borderRadius: '6px', marginBottom: '8px' }}>
+                      <Package size={32} style={{ color: 'var(--text-muted)' }} />
+                    </div>
+                  )}
                   <div style={{ fontWeight: '700', fontSize: '13px', color: 'var(--primary-hover)' }}>{prod.nombre}</div>
                   <div style={{ color: 'var(--text-muted)', fontSize: '11px', marginTop: '2px' }}>{prod.categoria}</div>
                   <div style={{ color: 'var(--primary-hover)', fontWeight: '700', fontSize: '12px', marginTop: '4px' }}>

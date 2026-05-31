@@ -64,6 +64,11 @@ export default function POSModule() {
   const processPayment = () => {
     const res = registrarVentaPOS(cart, selectedPaciente || null, paymentMethod);
     if (res.success) {
+      if (res.offline) {
+        alert(`¡Venta Registrada Fuera de Línea (Offline) con éxito!\n\nID Temporal: ${res.id}\nLa transacción se sincronizará automáticamente en cuanto se restablezca la conexión de red.`);
+      } else {
+        alert(`¡Cobro Procesado con Éxito!\n\nFactura Electrónica: ${res.id}\n\n1. El stock de medicamentos se ha deducido en el módulo de Inventario.\n2. Los asientos de ventas e IVA se han conciliado en Contabilidad.\n3. La factura electrónica ha sido enviada a Impuestos Nacionales.`);
+      }
       setCart([]);
       setSelectedPaciente('');
       setShowPaymentModal(false);
@@ -149,10 +154,17 @@ export default function POSModule() {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '28px',
-                  color: 'var(--primary)'
+                  overflow: 'hidden'
                 }}>
-                  💊
+                  {prod.imagen ? (
+                    <img 
+                      src={prod.imagen} 
+                      alt={prod.nombre} 
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                    />
+                  ) : (
+                    <span style={{ fontSize: '28px' }}>💊</span>
+                  )}
                 </div>
 
                 <div className="pos-product-name">{prod.nombre}</div>
