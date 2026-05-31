@@ -293,6 +293,39 @@ export const AppProvider = ({ children }) => {
     localStorage.setItem('pharma_theme', activeTheme);
   }, [activeTheme]);
 
+  // Real-time multi-tab and multi-session storage sync engine
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      try {
+        if (e.key === 'db_inventario' && e.newValue) {
+          setInventario(JSON.parse(e.newValue));
+        }
+        if (e.key === 'db_publishedProducts' && e.newValue) {
+          setPublishedProducts(JSON.parse(e.newValue));
+        }
+        if (e.key === 'db_pacientes' && e.newValue) {
+          setPacientes(JSON.parse(e.newValue));
+        }
+        if (e.key === 'db_facturas' && e.newValue) {
+          setFacturas(JSON.parse(e.newValue));
+        }
+        if (e.key === 'db_notifications' && e.newValue) {
+          setNotifications(JSON.parse(e.newValue));
+        }
+        if (e.key === 'pharma_user') {
+          setCurrentUser(e.newValue ? JSON.parse(e.newValue) : null);
+        }
+      } catch (err) {
+        console.error('Error synchronizing multi-session storage event:', err);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+
   // Login handler
   const login = (username, password) => {
     const userFound = usersList.find(u => u.username.toLowerCase() === username.toLowerCase() && u.password === password);
