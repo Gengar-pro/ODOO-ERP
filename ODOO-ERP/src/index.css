@@ -1091,85 +1091,277 @@ body {
    RESPONSIVE DESIGN (MEDIA QUERIES)
    ========================================== */
 
+/* Top Horizontal Modules swipe bar for mobile */
+.mobile-modules-bar {
+  display: none;
+}
+
 .mobile-menu-toggle {
   display: none;
 }
 
 @media (max-width: 991px) {
-  .mobile-menu-toggle {
-    display: flex !important;
-  }
-
+  /* Hide slide-out sidebar entirely - we now use the horizontal tabs bar! */
   .sidebar {
-    left: -260px;
-    box-shadow: none;
-  }
-
-  .sidebar.open {
-    left: 0 !important;
-    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.25);
+    display: none !important;
   }
 
   .main-workspace {
     margin-left: 0 !important;
-    width: 100%;
+    width: 100% !important;
   }
 
   .header {
+    height: 70px;
     padding: 0 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-left .mobile-menu-toggle {
+    display: none !important; /* Hide hamburger menu icon as tabs are static */
+  }
+
+  /* Static Mobile Modules Tab Bar */
+  .mobile-modules-bar {
+    display: flex;
+    overflow-x: auto;
+    background-color: var(--sidebar-bg);
+    padding: 10px 16px;
+    gap: 8px;
+    position: sticky;
+    top: 70px;
+    z-index: 99;
+    border-bottom: 1px solid var(--border);
+    scrollbar-width: none; /* Hide scrollbar for Firefox */
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .mobile-modules-bar::-webkit-scrollbar {
+    display: none; /* Hide scrollbar for Chrome/Safari */
+  }
+
+  .mobile-module-tab {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background-color: rgba(255, 255, 255, 0.06);
+    border-radius: 24px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .mobile-module-tab.active {
+    background-color: var(--primary);
+    color: #1A2238;
+    box-shadow: 0 2px 10px rgba(0, 229, 255, 0.2);
   }
 
   .content-area {
     padding: 16px;
   }
+
+  /* FORCE OVERRIDE ALL MODULE INLINE GRIDS TO STACK VERTICALLY */
+  div[style*="grid-template-columns"],
+  div[style*="gridTemplateColumns"],
+  .content-area > div > div[style*="display: grid"],
+  .content-area > div > div[style*="display:grid"] {
+    grid-template-columns: 1fr !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 20px !important;
+  }
+
+  /* Support for child grids of modules */
+  .content-area div[style*="grid-template-columns"] > div {
+    width: 100% !important;
+  }
 }
 
 @media (max-width: 768px) {
-  /* POS Responsive Layout */
+  /* Flatten mockup device frame if displayed on real mobile screen sizes */
+  .mobile-frame-container {
+    padding: 0 !important;
+    min-height: 100vh !important;
+    background-color: transparent !important;
+  }
+  .smartphone-device {
+    width: 100% !important;
+    height: 100% !important;
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+  }
+  .smartphone-notch,
+  .smartphone-device > div[style*="position: absolute"][style*="top: 12px"] {
+    display: none !important;
+  }
+
+  /* POS Responsive Stacking Layout */
   .pos-container {
-    grid-template-columns: 1fr;
-    height: auto;
-    overflow-y: visible;
+    grid-template-columns: 1fr !important;
+    display: flex !important;
+    flex-direction: column !important;
+    height: auto !important;
+    overflow-y: visible !important;
   }
 
   .pos-products {
-    overflow: visible;
-    height: auto;
+    overflow: visible !important;
+    height: auto !important;
+  }
+
+  .pos-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)) !important;
+    overflow-y: visible !important;
   }
 
   .pos-cart {
-    height: auto;
-    margin-top: 20px;
+    height: auto !important;
+    margin-top: 10px !important;
   }
 
-  /* Dashboard Cards */
+  /* Dashboard Cards layout */
   .dashboard-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
   }
 
-  /* Table responsiveness */
+  /* UNIVERSAL TABLE-TO-CARD RESPONSIVE SYSTEM (NO SIDE SCROLLING!) */
   .table-container {
-    overflow-x: auto;
-    width: 100%;
+    overflow-x: visible !important;
+    width: 100% !important;
+    border: none !important;
+    box-shadow: none !important;
   }
 
-  .custom-table {
-    min-width: 600px;
+  .custom-table, 
+  .custom-table thead, 
+  .custom-table tbody, 
+  .custom-table th, 
+  .custom-table td, 
+  .custom-table tr {
+    display: block !important;
+    width: 100% !important;
   }
 
-  /* CRM Kanban responsiveness */
+  .custom-table thead {
+    display: none !important; /* Hide headers */
+  }
+
+  .custom-table tr {
+    margin-bottom: 16px !important;
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius) !important;
+    padding: 16px !important;
+    background-color: var(--bg-surface) !important;
+    box-shadow: var(--card-shadow) !important;
+    position: relative !important;
+  }
+
+  .custom-table td {
+    padding: 8px 0 !important;
+    border-bottom: 1px dashed var(--border) !important;
+    text-align: left !important;
+    width: 100% !important;
+  }
+
+  .custom-table td:last-child {
+    border-bottom: none !important;
+    padding-bottom: 0 !important;
+    margin-top: 12px !important;
+    display: flex !important;
+    gap: 8px !important;
+    justify-content: flex-start !important;
+  }
+
+  /* Field 1 (Fármaco/Factura/Ticket) acts as the main title */
+  .custom-table td:nth-child(1) {
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    color: var(--primary-hover) !important;
+    border-bottom: 1px solid var(--border) !important;
+    padding-bottom: 6px !important;
+    margin-bottom: 6px !important;
+  }
+
+  /* Fields 2, 3, 4 act as small inline tags/details below the title */
+  .custom-table td:nth-child(2),
+  .custom-table td:nth-child(3),
+  .custom-table td:nth-child(4) {
+    font-size: 13px !important;
+    color: var(--text-muted) !important;
+    display: inline-block !important;
+    width: auto !important;
+    margin-right: 16px !important;
+    border-bottom: none !important;
+    padding: 4px 0 !important;
+  }
+
+  /* Visual Icons for card attributes */
+  .custom-table td:nth-child(2)::before {
+    content: "📍 " !important;
+  }
+
+  .custom-table td:nth-child(3)::before {
+    content: "🆔 " !important;
+  }
+
+  .custom-table td:nth-child(4)::before {
+    content: "📅 " !important;
+  }
+
+  /* Field 5 (Status / Stock Badge) absolute positioned in top right */
+  .custom-table td:nth-child(5) {
+    position: absolute !important;
+    top: 16px !important;
+    right: 16px !important;
+    width: auto !important;
+    border-bottom: none !important;
+    padding: 0 !important;
+  }
+
+  /* Gantt Charts Responsiveness */
+  .gantt-chart {
+    gap: 16px !important;
+  }
+
+  .gantt-row {
+    grid-template-columns: 1fr !important;
+    gap: 4px !important;
+  }
+
+  .gantt-timeline-track {
+    height: 20px !important;
+  }
+
+  /* CRM Kanban Columns */
   .kanban-board {
-    padding-bottom: 20px;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+  }
+
+  .kanban-column {
+    flex: 1 1 auto !important;
+    max-height: 450px !important;
   }
 
   /* Login card responsiveness */
   .login-card {
-    width: 100%;
-    padding: 24px 16px;
+    width: 100% !important;
+    padding: 24px 16px !important;
   }
   
   .header-right {
-    gap: 8px;
+    gap: 8px !important;
   }
   
   .view-selector {

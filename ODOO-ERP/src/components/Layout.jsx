@@ -179,24 +179,7 @@ export default function Layout() {
             </div>
 
             <div className="header-right">
-              {/* Desktop vs Mobile Simulator Switcher */}
-              <div className="view-selector">
-                <div 
-                  className={`view-option ${activeView === 'desktop' ? 'active' : ''}`}
                   onClick={() => setActiveView('desktop')}
-                >
-                  <Laptop size={14} style={{ marginRight: '6px', display: 'inline-block', verticalAlign: 'middle' }} />
-                  <span>Escritorio</span>
-                </div>
-                <div 
-                  className={`view-option ${activeView === 'mobile' ? 'active' : ''}`}
-                  onClick={() => setActiveView('mobile')}
-                >
-                  <Smartphone size={14} style={{ marginRight: '6px', display: 'inline-block', verticalAlign: 'middle' }} />
-                  <span>APK Móvil</span>
-                </div>
-              </div>
-
               {/* Day/Night native Switch */}
               <button onClick={toggleTheme} className="icon-btn" title="Alternar Modo Día/Noche">
                 {activeTheme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
@@ -263,6 +246,20 @@ export default function Layout() {
             </div>
           </div>
 
+          {/* MOBILE TABS MODULES BAR */}
+          <div className="mobile-modules-bar">
+            {currentUser.modules.map(modName => (
+              <div
+                key={modName}
+                className={`mobile-module-tab ${activeModule === modName ? 'active' : ''}`}
+                onClick={() => setActiveModule(modName)}
+              >
+                <span className="tab-icon">{getModuleIcon(modName)}</span>
+                <span className="tab-text">{modName}</span>
+              </div>
+            ))}
+          </div>
+
           {/* PAGE MAIN CONTENT */}
           <div className="content-area">
             {renderModuleComponent()}
@@ -272,10 +269,5 @@ export default function Layout() {
     );
   };
 
-  // Embed screen inside Mobile phone device simulator if 'mobile' is selected
-  return activeView === 'mobile' ? (
-    <MobileFrame>{renderLayoutContent()}</MobileFrame>
-  ) : (
-    renderLayoutContent()
-  );
+  return renderLayoutContent();
 }
