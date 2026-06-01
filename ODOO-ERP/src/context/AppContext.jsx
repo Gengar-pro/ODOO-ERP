@@ -61,12 +61,12 @@ const initialPacientes = [
 
 const initialInventario = [
   { id: 'p1', nombre: 'Paracetamol 500mg', stock: 45, lote: 'L-PAR202', vencimiento: '2027-10-15', minStock: 20, precio: 2.5, categoria: 'Analgesia', imagen: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400&q=80' },
-  { id: 'p2', nombre: 'Ibuprofeno 400mg', stock: 12, lote: 'L-IBU304', vencimiento: '2026-06-30', minStock: 15, precio: 3.8, categoria: 'Antiinflamatorio', imagen: 'https://images.unsplash.com/photo-1607619056574-7b8f304b3b8a?w=400&q=80' },
+  { id: 'p2', nombre: 'Ibuprofeno 400mg', stock: 12, lote: 'L-IBU304', vencimiento: '2026-06-30', minStock: 15, precio: 3.8, categoria: 'Antiinflamatorio', imagen: 'https://images.unsplash.com/photo-1630094539386-280edfb5d46a?w=400&q=80' },
   { id: 'p3', nombre: 'Metformina 850mg', stock: 68, lote: 'L-MET101', vencimiento: '2028-02-28', minStock: 30, precio: 4.2, categoria: 'Antidiabético', imagen: 'https://images.unsplash.com/photo-1585435557343-3b092031a831?w=400&q=80' },
-  { id: 'p4', nombre: 'Losartán 50mg', stock: 9, lote: 'L-LOS509', vencimiento: '2027-01-20', minStock: 10, precio: 5.5, categoria: 'Cardiovascular', imagen: 'https://images.unsplash.com/photo-1628771065518-0d82f11181a6?w=400&q=80' },
+  { id: 'p4', nombre: 'Losartán 50mg', stock: 9, lote: 'L-LOS509', vencimiento: '2027-01-20', minStock: 10, precio: 5.5, categoria: 'Cardiovascular', imagen: 'https://images.unsplash.com/photo-1577401132921-cb39bb0adcff?w=400&q=80' },
   { id: 'p5', nombre: 'Atorvastatina 20mg', stock: 32, lote: 'L-ATO808', vencimiento: '2027-08-05', minStock: 12, precio: 6.0, categoria: 'Cardiovascular', imagen: 'https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=400&q=80' },
-  { id: 'p6', nombre: 'Amoxicilina 500mg', stock: 5, lote: 'L-AMO402', vencimiento: '2026-05-25', minStock: 15, precio: 7.5, categoria: 'Antibiótico', imagen: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=400&q=80' },
-  { id: 'p7', nombre: 'Preparación Magistral Antiacné', stock: 3, lote: 'M-ACN01', vencimiento: '2026-08-10', minStock: 5, precio: 45.0, categoria: 'Fórmula Magistral', imagen: 'https://images.unsplash.com/photo-1608248597481-496100c80836?w=400&q=80' }
+  { id: 'p6', nombre: 'Amoxicilina 500mg', stock: 5, lote: 'L-AMO402', vencimiento: '2026-05-25', minStock: 15, precio: 7.5, categoria: 'Antibiótico', imagen: 'https://images.unsplash.com/photo-1631980838568-8859e153f037?w=400&q=80' },
+  { id: 'p7', nombre: 'Preparación Magistral Antiacné', stock: 3, lote: 'M-ACN01', vencimiento: '2026-08-10', minStock: 5, precio: 45.0, categoria: 'Fórmula Magistral', imagen: 'https://images.unsplash.com/photo-1631980839613-61a08159d506?w=400&q=80' }
 ];
 
 const initialFormulas = [
