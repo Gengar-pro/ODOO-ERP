@@ -686,18 +686,20 @@ body {
   background-color: var(--bg-surface);
   border-radius: var(--radius);
   border: 1px solid var(--border);
-  overflow: hidden;
+  overflow-x: auto;      /* FIX: permite scroll horizontal dentro de la tabla */
+  overflow-y: visible;
   box-shadow: var(--card-shadow);
-  width: 100%;           /* FIX: tabla respeta el ancho del contenedor */
+  width: 100%;
   max-width: 100%;
 }
 
 .custom-table {
   width: 100%;
+  min-width: 600px;      /* FIX: tabla mantiene ancho mínimo legible, scroll si no cabe */
   border-collapse: collapse;
   text-align: left;
   font-size: 14px;
-  table-layout: auto;    /* FIX: columnas se ajustan al espacio disponible */
+  table-layout: auto;
 }
 
 .custom-table th {
@@ -1138,6 +1140,18 @@ body {
   align-items: center;
   justify-content: center;
   gap: 8px;
+}
+
+/* ==========================================
+   MODAL DE CONFIGURACIÓN — FIX SCROLL
+   ========================================== */
+
+/* Cualquier card dentro de un overlay fixed (como el modal de settings) */
+div[style*="position: fixed"] > .card,
+div[style*="position:fixed"] > .card {
+  max-height: 90vh !important;
+  overflow-y: auto !important;
+  width: min(400px, 90vw) !important;  /* se ajusta en pantallas pequeñas */
 }
 
 /* ==========================================
