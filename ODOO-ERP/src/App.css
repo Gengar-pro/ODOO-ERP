@@ -1,9 +1,13 @@
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  width: 100%;
+  height: 100vh;
+  max-width: 100%;   /* ← acambio 4 xd */
+  margin: 0;         /* ← cambio 3 xd */
+  padding: 0;        /* ← cambio 2 xd */
+  text-align: left;  /* ← cambio 1 xd */
+  overflow: hidden;
 }
+
 
 .logo {
   height: 6em;
